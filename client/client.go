@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	types "github.com/cosmos-gaminghub/explorer-backend/lcd"
+	"github.com/cosmos-gaminghub/explorer-backend/logger"
 	"github.com/cosmos-gaminghub/explorer-backend/utils"
 	"github.com/pkg/errors"
 )
@@ -16,12 +17,12 @@ func GetBlock(height int64) (types.BlockResult, error) {
 	url := fmt.Sprintf("http://108.61.162.170:1317/cosmos/base/tendermint/v1beta1/blocks/%d", height)
 	resBytes, err := utils.Get(url)
 	if err != nil {
-		//logger.Error("get AssetTokens error", logger.String("err", err.Error()))
+		logger.Error("get AssetTokens error", logger.String("err", err.Error()))
 	}
 
 	var result types.BlockResult
 	if err := json.Unmarshal(resBytes, &result); err != nil {
-		//logger.Error("Unmarshal AssetTokens error", logger.String("err", err.Error()))
+		logger.Error("Unmarshal AssetTokens error", logger.String("err", err.Error()))
 	}
 
 	return result, nil
@@ -31,12 +32,12 @@ func GetBlock(height int64) (types.BlockResult, error) {
 func GetLatestBlockHeight() (int64, error) {
 	resBytes, err := utils.Get("http://108.61.162.170:1317/cosmos/base/tendermint/v1beta1/blocks/latest")
 	if err != nil {
-		//logger.Error("get AssetTokens error", logger.String("err", err.Error()))
+		logger.Error("get block error", logger.String("err", err.Error()))
 	}
 
 	var result types.BlockResult
 	if err := json.Unmarshal(resBytes, &result); err != nil {
-		//logger.Error("Unmarshal AssetTokens error", logger.String("err", err.Error()))
+		logger.Error("Unmarshal block error", logger.String("err", err.Error()))
 	}
 
 	latestBlockHeight, err := strconv.ParseInt(result.Block.Header.Height, 10, 64)
@@ -49,44 +50,19 @@ func GetLatestBlockHeight() (int64, error) {
 
 // GetTxs queries for all the transactions in a block height.
 // It uses `Tx` RPC method to query for the transaction.
-// func GetTxs(block *tmctypes.ResultBlock) ([]*rpc.ResultTx, error) {
-// 	txs := make([]*rpc.ResultTx, len(block.Block.Txs), len(block.Block.Txs))
-// 	var err error
-// 	retryFlag := false
+func GetTxs(height int64) (types.TxResult, error) {
+	resBytes, err := utils.Get("http://108.61.162.170:1317/cosmos/tx/v1beta1/txs?events=tx.height=36234")
+	if err != nil {
+		logger.Error("get Tx error", logger.String("err", err.Error()))
+	}
 
-// 	for i, tmTx := range block.Block.Txs {
-// 		hash := tmTx.Hash()
-// 		controler <- struct{}{}
-// 		wg.Add(1)
-// 		go func(i int, hash []byte) {
-// 			defer func() {
-// 				<-controler
-// 				wg.Done()
-// 			}()
+	var result types.TxResult
+	if err := json.Unmarshal(resBytes, &result); err != nil {
+		logger.Error("Unmarshal Tx error", logger.String("err", err.Error()))
+	}
 
-// 			txs[i], err = c.rpcClient.Tx(hash, true)
-// 			if err != nil {
-// 				retryFlag = true
-// 				fmt.Println(hash)
-// 				return
-// 			}
-// 		}(i, hash)
-// 	}
-// 	wg.Wait()
-
-// 	if retryFlag {
-// 		return nil, fmt.Errorf("can not get all of txs, retry get tx in block height = %d", block.Block.Height)
-// 	}
-
-// 	// tx, err := c.rpcClient.Tx(hash, true)
-// 	// if err != nil {
-// 	// 	return nil, err
-// 	// }
-
-// 	// txs[i] = tx
-
-// 	return txs, nil
-// }
+	return result, nil
+}
 
 // GetValidatorSet returns all the known Tendermint validators for a given block
 // height. An error is returned if the query fails.

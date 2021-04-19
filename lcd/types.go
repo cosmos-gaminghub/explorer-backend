@@ -358,99 +358,6 @@ type GenesisVo struct {
 	} `json:"result"`
 }
 
-type BlockVo struct {
-	BlockMeta struct {
-		BlockID struct {
-			Hash  string `json:"hash"`
-			Parts struct {
-				Total string `json:"total"`
-				Hash  string `json:"hash"`
-			} `json:"parts"`
-		} `json:"block_id"`
-		Header struct {
-			Version struct {
-				Block string `json:"block"`
-				App   string `json:"app"`
-			} `json:"version"`
-			ChainID     string    `json:"chain_id"`
-			Height      string    `json:"height"`
-			Time        time.Time `json:"time"`
-			NumTxs      string    `json:"num_txs"`
-			TotalTxs    string    `json:"total_txs"`
-			LastBlockID struct {
-				Hash  string `json:"hash"`
-				Parts struct {
-					Total string `json:"total"`
-					Hash  string `json:"hash"`
-				} `json:"parts"`
-			} `json:"last_block_id"`
-			LastCommitHash     string `json:"last_commit_hash"`
-			DataHash           string `json:"data_hash"`
-			ValidatorsHash     string `json:"validators_hash"`
-			NextValidatorsHash string `json:"next_validators_hash"`
-			ConsensusHash      string `json:"consensus_hash"`
-			AppHash            string `json:"app_hash"`
-			LastResultsHash    string `json:"last_results_hash"`
-			EvidenceHash       string `json:"evidence_hash"`
-			ProposerAddress    string `json:"proposer_address"`
-		} `json:"header"`
-	} `json:"block_meta"`
-	Block struct {
-		Header struct {
-			Version struct {
-				Block string `json:"block"`
-				App   string `json:"app"`
-			} `json:"version"`
-			ChainID     string    `json:"chain_id"`
-			Height      string    `json:"height"`
-			Time        time.Time `json:"time"`
-			NumTxs      string    `json:"num_txs"`
-			TotalTxs    string    `json:"total_txs"`
-			LastBlockID struct {
-				Hash  string `json:"hash"`
-				Parts struct {
-					Total string `json:"total"`
-					Hash  string `json:"hash"`
-				} `json:"parts"`
-			} `json:"last_block_id"`
-			LastCommitHash     string `json:"last_commit_hash"`
-			DataHash           string `json:"data_hash"`
-			ValidatorsHash     string `json:"validators_hash"`
-			NextValidatorsHash string `json:"next_validators_hash"`
-			ConsensusHash      string `json:"consensus_hash"`
-			AppHash            string `json:"app_hash"`
-			LastResultsHash    string `json:"last_results_hash"`
-			EvidenceHash       string `json:"evidence_hash"`
-			ProposerAddress    string `json:"proposer_address"`
-		} `json:"header"`
-		LastCommit struct {
-			BlockID struct {
-				Hash  string `json:"hash"`
-				Parts struct {
-					Total string `json:"total"`
-					Hash  string `json:"hash"`
-				} `json:"parts"`
-			} `json:"block_id"`
-			Precommits []struct {
-				Type    int    `json:"type"`
-				Height  string `json:"height"`
-				Round   string `json:"round"`
-				BlockID struct {
-					Hash  string `json:"hash"`
-					Parts struct {
-						Total string `json:"total"`
-						Hash  string `json:"hash"`
-					} `json:"parts"`
-				} `json:"block_id"`
-				Timestamp        time.Time `json:"timestamp"`
-				ValidatorAddress string    `json:"validator_address"`
-				ValidatorIndex   string    `json:"validator_index"`
-				Signature        string    `json:"signature"`
-			} `json:"precommits"`
-		} `json:"last_commit"`
-	} `json:"block"`
-}
-
 type BlockResult struct {
 	Block struct {
 		Header struct {
@@ -655,16 +562,44 @@ type BlockCoinFlowVo struct {
 }
 
 type Tx struct {
-	Value struct {
-		Msg []struct {
-			Type  string `json:"type"`
-			Value struct {
-				DelegatorAddr string `json:"delegator_addr"`
-			} `json:"value"`
-		} `json:"msg"`
-	} `json:"value"`
+	Type string `json:"@type"`
+	Body struct {
+		Messages []struct {
+			Type        string `json:"@type"`
+			FromAddress string `json:"from_address"`
+			ToAddress   string `json:"to_address"`
+			Amount      []struct {
+				Denom  string `json:"denom"`
+				Amount string `json:"amount"`
+			} `json:"amount"`
+		} `json:"messages"`
+	} `json:"body"`
+	AuthInfo   TxAuthInfo `json:"auth_info"`
+	Signatures []string   `json:"signatures"`
 }
 
+type TxAuthInfo struct {
+	SignerInfos []TxSignerInfo `json:"signer_infos"`
+	Fee         struct {
+		Amount   []string `json:"amount"`
+		GasLimit string   `json:"gas_limit"`
+		Granter  string   `json:"granter"`
+		Payer    string   `json:"payer"`
+	}
+}
+
+type TxSignerInfo struct {
+	TxSignerPubKey struct {
+		Type string `json:"@type"`
+		Key  string `json:"key"`
+	} `json:"public_key"`
+	ModeInfo struct {
+		Single struct {
+			Mode string `json:"mode"`
+		} `json:"single"`
+	} `json:"mode_info"`
+	Sequence string `json:"sequence"`
+}
 type AssetTokens struct {
 	BaseToken struct {
 		Id              string `json:"id"`
@@ -689,4 +624,34 @@ type AssetGateways struct {
 	Identity string `json:"identity"`
 	Details  string `json:"details"`
 	Website  string `json:"website"`
+}
+
+type TxResult struct {
+	TxResponse []struct {
+		Height    string `json:"height"`
+		TxHash    string `json:"tx_hash"`
+		Code      uint32 `json:"code"`
+		RawLog    string `json:"raw_log"`
+		Logs      []Log  `json:"logs"`
+		Info      string `json:"info"`
+		GasUsed   string `json:"gas_used"`
+		GasWanted string `json:"gas_wanted"`
+		Tx        Tx     `json:"tx"`
+	} `json:"tx_responses"`
+}
+
+type Log struct {
+	MsgIndex string  `json:"msg_index"`
+	Log      string  `json:"log"`
+	Events   []Event `json:"events"`
+}
+
+type Event struct {
+	Type       string           `json:"type"`
+	Attributes []EventAttribute `json:"attributes"`
+}
+
+type EventAttribute struct {
+	Key   string `json:"key"`
+	Value string `json:"value"`
 }

@@ -56,30 +56,29 @@ func sync() error {
 	}
 
 	dbHeight, err := strconv.ParseInt(block.Height, 10, 64)
+	fmt.Println(dbHeight)
 	if dbHeight == -1 {
 		log.Fatal(errors.Wrap(err, "failed to query the latest block height saved in database"))
 	}
 
-	fmt.Println(block)
+	// latestBlockHeight, err := client.GetLatestBlockHeight()
+	// if err != nil {
+	// 	logger.Error("Not found block from lcd", logger.String("err", err.Error()))
+	// }
+	// // Synchronizing blocks from the scratch will return 0 and will ingest accordingly.
+	// // Skip the first block since it has no pre-commits
+	// if dbHeight == 0 {
+	// 	dbHeight = 1
+	// }
 
-	latestBlockHeight, err := client.GetLatestBlockHeight()
-	if err != nil {
-		logger.Error("Not found block from lcd", logger.String("err", err.Error()))
-	}
-	// Synchronizing blocks from the scratch will return 0 and will ingest accordingly.
-	// Skip the first block since it has no pre-commits
-	if dbHeight == 0 {
-		dbHeight = 1
-	}
-
-	// Ingest all blocks up to the latest height
-	for i := dbHeight + 1; i <= latestBlockHeight; i++ {
-		err = process(i)
-		if err != nil {
-			return err
-		}
-		fmt.Printf("synced block %d/%d \n", i, latestBlockHeight)
-	}
+	// // Ingest all blocks up to the latest height
+	// for i := dbHeight + 1; i <= latestBlockHeight; i++ {
+	// 	err = process(i)
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// 	fmt.Printf("synced block %d/%d \n", i, latestBlockHeight)
+	// }
 
 	return nil
 }
@@ -93,10 +92,14 @@ func process(height int64) error {
 	}
 	orm.Save("block", block)
 
-	// resultTxs, err := ex.getTxs(block)
-	// if err != nil {
-	// 	return fmt.Errorf("failed to get transactions: %s", err)
-	// }
+	resultTxs, err := client.GetTxs(height)
+	if err != nil {
+		return fmt.Errorf("failed to get transactions: %s", err)
+	}
+
+	for _, responseTx := range resultTxs.TxResponse {
+		orm.Save("transaction", responseTx)
+	}
 
 	// valSet, err := ex.client.GetValidatorSet(block.Block.LastCommit.Height())
 	// if err != nil {
