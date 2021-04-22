@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	CollectionNmBlock = "block"
+	CollectionNmBlock = "blocks"
 
 	Block_Field_Height          = "height"
 	Block_Field_Hash            = "hash"

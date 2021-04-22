@@ -9,6 +9,7 @@ import (
 	"github.com/cosmos-gaminghub/explorer-backend/client"
 	"github.com/cosmos-gaminghub/explorer-backend/conf"
 	"github.com/cosmos-gaminghub/explorer-backend/logger"
+	"github.com/cosmos-gaminghub/explorer-backend/orm"
 	"github.com/cosmos-gaminghub/explorer-backend/orm/document"
 	"github.com/pkg/errors"
 )
@@ -91,22 +92,26 @@ func process(height int64) error {
 	if err != nil {
 		return fmt.Errorf("failed to query block using rpc client: %s", err)
 	}
+	orm.Save("blocks", block)
 
 	resultTxs, err := client.GetTxs(height)
 	if err != nil {
 		return fmt.Errorf("failed to get transactions: %s", err)
 	}
+	orm.Save("txs", resultTxs)
 
 	lastCommitHeight, err := strconv.ParseInt(block.Block.LastCommit.Height, 10, 64)
 	valSet, err := client.GetValidatorSet(lastCommitHeight)
 	if err != nil {
 		return fmt.Errorf("failed to query validator set using rpc client: %s", err)
 	}
+	orm.Save("validator_sets", valSet)
 
 	vals, err := client.GetValidators()
 	if err != nil {
 		return fmt.Errorf("failed to query validators using rpc client: %s", err)
 	}
+	orm.Save("validators", vals)
 
 	// // TODO: Reward Fees Calculation
 	// resultBlock, err := GetBlock(block)
