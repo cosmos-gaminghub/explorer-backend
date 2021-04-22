@@ -11,7 +11,7 @@ const (
 	UrlAccount                = "%s/bank/accounts/%s"
 	UrlBankTokenStats         = "%s/bank/token-stats"
 	UrlValidator              = "%s/stake/validators/%s"
-	UrlValidators             = "%s/stake/validators?page=%d&size=%d"
+	UrlValidators             = "%s/cosmos/staking/v1beta1/validators"
 	UrlDelegationByVal        = "%s/stake/validators/%s/delegations"
 	UrlDelegationsByDelegator = "%s/stake/delegators/%s/delegations"
 	//UrlDelegationsFromValidatorByDelegator = "%s/stake/delegators/%s/validators/%s"
@@ -24,14 +24,15 @@ const (
 	UrlNodeVersion                               = "%s/node-version"
 	UrlGenesis                                   = "%s/genesis"
 	UrlWithdrawAddress                           = "%s/distribution/%s/withdraw-address"
-	UrlBlockLatest                               = "%s/blocks/latest"
-	UrlBlock                                     = "%s/blocks/%d"
-	UrlValidatorSet                              = "%s/validatorsets/%d"
-	UrlValidatorSetLatest                        = "%s/validatorsets/latest"
+	UrlBlockLatest                               = "%s/cosmos/base/tendermint/v1beta1/blocks/latest"
+	UrlBlock                                     = "%s/cosmos/base/tendermint/v1beta1/blocks/%d"
+	UrlValidatorSet                              = "%s/cosmos/base/tendermint/v1beta1/validatorsets/%d"
+	UrlValidatorSetLatest                        = "%s/cosmos/base/tendermint/v1beta1/validatorsets/latest"
 	UrlStakePool                                 = "%s/stake/pool"
 	UrlBlocksResult                              = "%s/block-results/%d"
-	UrlTxsTxHash                                 = "%s/txs/%s"
-	UrlGovParam                                  = "%s/params?module=%s"
+	UrlTxsTxHeight                               = "%s/cosmos/tx/v1beta1/txs?events=tx.height=%d"
+	UrlModuleParam                               = "%s/cosmos/%s/v1beta1/params"
+	UrlGovParam                                  = "%s/cosmos/gov/v1beta1/params/%s"
 	UrlDistributionRewardsByValidatorAcc         = "%s/distribution/%s/rewards"
 	UrlValidatorsSigningInfoByConsensuPublicKey  = "%s/slashing/validators/%s/signing-info"
 	UrlDistributionWithdrawAddressByValidatorAcc = "%s/distribution/%s/withdraw-address"
@@ -56,29 +57,28 @@ type AccountVo struct {
 	Sequence      string `json:"sequence"`
 }
 
-type ValidatorVo struct {
-	OperatorAddress string      `json:"operator_address"`
-	ConsensusPubkey string      `json:"consensus_pubkey"`
-	Jailed          bool        `json:"jailed"`
-	Status          int         `json:"status"`
-	Tokens          string      `json:"tokens"`
-	DelegatorShares string      `json:"delegator_shares"`
-	Description     Description `json:"description"`
-	BondHeight      string      `json:"bond_height"`
-	UnbondingHeight string      `json:"unbonding_height"`
-	UnbondingTime   time.Time   `json:"unbonding_time"`
-	Commission      Commission  `json:"commission"`
-	Uptime          float32     `json:"uptime"`
-	SelfBond        string      `json:"self_bond"`
-	DelegatorNum    int         `json:"delegator_num"`
-	ProposerAddr    string      `json:"proposer_addr"`
-	VotingRate      float32     `json:"voting_rate"`
-	Icons           string      `json:"icons"`
+type Validator struct {
+	OperatorAddress string `json:"operator_address"`
+	ConsensusPubkey struct {
+		Type string `json:"@type"`
+		Key  string `json:"key"`
+	} `json:"consensus_pubkey"`
+	Jailed            bool        `json:"jailed"`
+	Status            int         `json:"status"`
+	Tokens            string      `json:"tokens"`
+	DelegatorShares   string      `json:"delegator_shares"`
+	Description       Description `json:"description"`
+	UnbondingHeight   string      `json:"unbonding_height"`
+	UnbondingTime     time.Time   `json:"unbonding_time"`
+	Commission        Commission  `json:"commission"`
+	MinSelfDelegation string      `json:"min_self_delegation"`
 }
 
-type ValidatorsVoRespond []ValidatorVo
+type ValidatorsRespond struct {
+	Validators []Validator `json:"validators"`
+}
 
-func (v ValidatorVo) String() string {
+func (v Validator) String() string {
 	return fmt.Sprintf(`
 		OperatorAddress :%v
 		ConsensusPubkey :%v
@@ -87,31 +87,27 @@ func (v ValidatorVo) String() string {
 		Tokens          :%v
 		DelegatorShares :%v
 		Description     :%v
-		BondHeight      :%v
 		UnbondingHeight :%v
 		UnbondingTime   :%v
 		Commission      :%v
-		Uptime          :%v
-		SelfBond        :%v
-		DelegatorNum    :%v
-		ProposerAddr    :%v
-		VotingRate      :%v
-		Icons           :%v
-		`, v.OperatorAddress, v.ConsensusPubkey, v.Jailed, v.Status, v.Tokens, v.DelegatorShares, v.Description, v.BondHeight, v.UnbondingHeight, v.UnbondingTime,
-		v.Commission, v.Uptime, v.SelfBond, v.DelegatorNum, v.ProposerAddr, v.VotingRate, v.Icons)
+		`, v.OperatorAddress, v.ConsensusPubkey, v.Jailed, v.Status, v.Tokens, v.DelegatorShares, v.Description, v.UnbondingHeight, v.UnbondingTime,
+		v.Commission)
 }
 
 type Description struct {
-	Moniker  string `json:"moniker"`
-	Identity string `json:"identity"`
-	Website  string `json:"website"`
-	Details  string `json:"details"`
+	Moniker         string `json:"moniker"`
+	Identity        string `json:"identity"`
+	Website         string `json:"website"`
+	Details         string `json:"details"`
+	SecurityContact string `json:"security_contact"`
 }
 type Commission struct {
-	Rate          string    `json:"rate"`
-	MaxRate       string    `json:"max_rate"`
-	MaxChangeRate string    `json:"max_change_rate"`
-	UpdateTime    time.Time `json:"update_time"`
+	CommissionRate struct {
+		Rate          string `json:"rate"`
+		MaxRate       string `json:"max_rate"`
+		MaxChangeRate string `json:"max_change_rate"`
+	}
+	UpdateTime time.Time `json:"update_time"`
 }
 
 type NodeInfoVo struct {
@@ -407,11 +403,14 @@ type BlockResult struct {
 	} `json:"block"`
 }
 
-type ValidatorSetVo struct {
+type ValidatorSet struct {
 	BlockHeight string `json:"block_height"`
 	Validators  []struct {
-		Address          string `json:"address"`
-		PubKey           string `json:"pub_key"`
+		Address string `json:"address"`
+		PubKey  struct {
+			Type string `json:"@type"`
+			Key  string `json:"key"`
+		} `json:"pub_key"`
 		ProposerPriority string `json:"proposer_priority"`
 		VotingPower      string `json:"voting_power"`
 	} `json:"validators"`
@@ -654,4 +653,51 @@ type Event struct {
 type EventAttribute struct {
 	Key   string `json:"key"`
 	Value string `json:"value"`
+}
+
+type DistributionParam struct {
+	Params struct {
+		CommunityTax        string `json:"community_tax"`
+		BaseProposerReward  string `json:"base_proposer_reward"`
+		BonusProposerReward string `json:"bonus_proposer_reward"`
+		WithdrawAddrEnabled bool   `json:"withdraw_addr_enabled"`
+	} `json:"params"`
+}
+
+type BankParam struct {
+	Params struct {
+		SendEnabled []struct {
+			Denom   string `json:"denom"`
+			Enabled bool   `json:"enabled"`
+		} `json:"send_enabled"`
+		DefaultSendEnabled bool `json:"default_send_enabled"`
+	} `json:"params"`
+}
+
+type AuthParam struct {
+	Params struct {
+		MaxMemoCharacters      string `json:"max_memo_characters"`
+		TxSigLimit             string `json:"tx_sig_limit"`
+		TxSizeCostPerByte      string `json:"tx_size_cost_per_byte"`
+		SigVerifyCostEd25591   string `json:"sig_verify_cost_ed25519"`
+		SigVerifyCostSecp256k1 string `json:"sig_verify_cost_secp256k1"`
+	} `json:"params"`
+}
+
+type GovParam struct {
+	VotingParams struct {
+		VotingPeriod string `json:"voting_period"`
+	} `json:"voting_params"`
+	DepositParams struct {
+		MinDeposit []struct {
+			Denom  string `json:"denom"`
+			Amount string `json:"amount"`
+		} `json:"min_deposit"`
+		MaxDeposiyPeriod string `json:"max_deposit_period"`
+	}
+	TallyParams struct {
+		Quorum        string `json:"quorum"`
+		Threshold     string `json:"threshold"`
+		VetoThreshold string `json:"veto_threshold"`
+	} `json:"tally_params"`
 }

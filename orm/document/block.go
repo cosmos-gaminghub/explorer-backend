@@ -23,7 +23,7 @@ const (
 )
 
 type Block struct {
-	Height       string        `bson:"height"`
+	Height       int64         `bson:"height"`
 	Hash         string        `bson:"hash"`
 	Time         time.Time     `bson:"time"`
 	NumTxs       int64         `bson:"num_txs"`

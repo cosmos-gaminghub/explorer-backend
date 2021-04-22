@@ -6,6 +6,8 @@ import (
 	"log"
 	"strconv"
 
+	"github.com/cosmos-gaminghub/explorer-backend/conf"
+	"github.com/cosmos-gaminghub/explorer-backend/lcd"
 	types "github.com/cosmos-gaminghub/explorer-backend/lcd"
 	"github.com/cosmos-gaminghub/explorer-backend/logger"
 	"github.com/cosmos-gaminghub/explorer-backend/utils"
@@ -14,7 +16,7 @@ import (
 
 // GetBlock queries for a block by height. An error is returned if the query fails.
 func GetBlock(height int64) (types.BlockResult, error) {
-	url := fmt.Sprintf("http://108.61.162.170:1317/cosmos/base/tendermint/v1beta1/blocks/%d", height)
+	url := fmt.Sprintf(lcd.UrlBlock, conf.Get().Hub.LcdUrl, height)
 	resBytes, err := utils.Get(url)
 	if err != nil {
 		logger.Error("get AssetTokens error", logger.String("err", err.Error()))
@@ -30,7 +32,8 @@ func GetBlock(height int64) (types.BlockResult, error) {
 
 // GetLatestBlockHeight returns the latest block height on the active chain.
 func GetLatestBlockHeight() (int64, error) {
-	resBytes, err := utils.Get("http://108.61.162.170:1317/cosmos/base/tendermint/v1beta1/blocks/latest")
+	url := fmt.Sprintf(lcd.UrlBlockLatest, conf.Get().Hub.LcdUrl)
+	resBytes, err := utils.Get(url)
 	if err != nil {
 		logger.Error("get block error", logger.String("err", err.Error()))
 	}
@@ -51,7 +54,8 @@ func GetLatestBlockHeight() (int64, error) {
 // GetTxs queries for all the transactions in a block height.
 // It uses `Tx` RPC method to query for the transaction.
 func GetTxs(height int64) (types.TxResult, error) {
-	resBytes, err := utils.Get("http://108.61.162.170:1317/cosmos/tx/v1beta1/txs?events=tx.height=36234")
+	url := fmt.Sprintf(lcd.UrlTxsTxHeight, conf.Get().Hub.LcdUrl, height)
+	resBytes, err := utils.Get(url)
 	if err != nil {
 		logger.Error("get Tx error", logger.String("err", err.Error()))
 	}
@@ -66,29 +70,99 @@ func GetTxs(height int64) (types.TxResult, error) {
 
 // GetValidatorSet returns all the known Tendermint validators for a given block
 // height. An error is returned if the query fails.
-// func (c Client) GetValidatorSet(height int64) (*tmctypes.ResultValidators, error) {
-// 	return c.rpcClient.Validators(&height)
-// }
+func GetValidatorSet(height int64) (types.ValidatorSet, error) {
+	url := fmt.Sprintf(lcd.UrlValidatorSet, conf.Get().Hub.LcdUrl, height)
+	resBytes, err := utils.Get(url)
+	if err != nil {
+		logger.Error("Get validator set error", logger.String("err", err.Error()))
+	}
 
-// // GetValidators returns validators detail information in Tendemrint validators in active chain
-// // An error returns if the query fails.
-// func (c Client) GetValidators() ([]*types.Validator, error) {
-// 	resp, err := c.apiClient.R().Get("/stake/validators")
-// 	if err != nil {
-// 		return nil, err
-// 	}
+	var result types.ValidatorSet
+	if err := json.Unmarshal(resBytes, &result); err != nil {
+		logger.Error("Unmarshal validator set error", logger.String("err", err.Error()))
+	}
 
-// 	var vals []*types.Validator
+	return result, nil
+}
 
-// 	err = json.Unmarshal(resp.Body(), &vals)
-// 	if err != nil {
-// 		return nil, err
-// 	}
+// GetValidators returns validators detail information in Tendemrint validators in active chain
+// An error returns if the query fails.
+func GetValidators() (types.ValidatorsRespond, error) {
+	url := fmt.Sprintf(lcd.UrlValidators, conf.Get().Hub.LcdUrl)
+	resBytes, err := utils.Get(url)
+	if err != nil {
+		logger.Error("Get validators error", logger.String("err", err.Error()))
+	}
 
-// 	return vals, nil
-// }
+	var result types.ValidatorsRespond
+	if err := json.Unmarshal(resBytes, &result); err != nil {
+		logger.Error("Unmarshal validators error", logger.String("err", err.Error()))
+	}
 
-// // GetTokens returns information about existing tokens in active chain.
+	return result, nil
+}
+
+func GetAuthParams() (types.AuthParam, error) {
+	url := fmt.Sprintf(lcd.UrlModuleParam, conf.Get().Hub.LcdUrl, "auth")
+	resBytes, err := utils.Get(url)
+	if err != nil {
+		logger.Error("Get validators error", logger.String("err", err.Error()))
+	}
+
+	var result types.AuthParam
+	if err := json.Unmarshal(resBytes, &result); err != nil {
+		logger.Error("Unmarshal validators error", logger.String("err", err.Error()))
+	}
+
+	return result, nil
+}
+
+func GetBankParams() (types.BankParam, error) {
+	url := fmt.Sprintf(lcd.UrlModuleParam, conf.Get().Hub.LcdUrl, "bank")
+	resBytes, err := utils.Get(url)
+	if err != nil {
+		logger.Error("Get validators error", logger.String("err", err.Error()))
+	}
+
+	var result types.BankParam
+	if err := json.Unmarshal(resBytes, &result); err != nil {
+		logger.Error("Unmarshal validators error", logger.String("err", err.Error()))
+	}
+
+	return result, nil
+}
+
+func GetDistributionParams() (types.DistributionParam, error) {
+	url := fmt.Sprintf(lcd.UrlModuleParam, conf.Get().Hub.LcdUrl, "distribution")
+	resBytes, err := utils.Get(url)
+	if err != nil {
+		logger.Error("Get validators error", logger.String("err", err.Error()))
+	}
+
+	var result types.DistributionParam
+	if err := json.Unmarshal(resBytes, &result); err != nil {
+		logger.Error("Unmarshal validators error", logger.String("err", err.Error()))
+	}
+
+	return result, nil
+}
+
+func GetGovParams(govType string) (types.ValidatorsRespond, error) {
+	url := fmt.Sprintf(lcd.UrlModuleParam, conf.Get().Hub.LcdUrl, govType)
+	resBytes, err := utils.Get(url)
+	if err != nil {
+		logger.Error("Get validators error", logger.String("err", err.Error()))
+	}
+
+	var result types.ValidatorsRespond
+	if err := json.Unmarshal(resBytes, &result); err != nil {
+		logger.Error("Unmarshal validators error", logger.String("err", err.Error()))
+	}
+
+	return result, nil
+}
+
+// GetTokens returns information about existing tokens in active chain.
 // func (c Client) GetTokens(limit int, offset int) ([]*types.Token, error) {
 // 	resp, err := c.apiClient.R().Get("/tokens?limit=" + strconv.Itoa(limit) + "&offset=" + strconv.Itoa(offset))
 // 	if err != nil {

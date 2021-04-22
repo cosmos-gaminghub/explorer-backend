@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/cosmos-gaminghub/explorer-backend/client"
+	"github.com/cosmos-gaminghub/explorer-backend/conf"
 	"github.com/cosmos-gaminghub/explorer-backend/logger"
-	"github.com/cosmos-gaminghub/explorer-backend/orm"
 	"github.com/cosmos-gaminghub/explorer-backend/orm/document"
 	"github.com/pkg/errors"
 )
@@ -28,7 +28,7 @@ type Exporter struct {
 // Start starts to synchronize Binance Chain data.
 func Start() error {
 	fmt.Println("Starting Chain Exporter...")
-
+	fmt.Println(conf.Get().Hub.LcdUrl)
 	go func() {
 		for {
 			fmt.Println("start - sync blockchain")
@@ -49,36 +49,37 @@ func Start() error {
 // sync compares block height between the height saved in your database and
 // the latest block height on the active chain and calls process to start ingesting data.
 func sync() error {
+
 	// Query latest block height saved in database
 	block, err := document.Block{}.QueryLatestBlockFromDB()
 	if err != nil {
 		logger.Error("Block not found")
 	}
 
-	dbHeight, err := strconv.ParseInt(block.Height, 10, 64)
+	dbHeight := block.Height
 	fmt.Println(dbHeight)
 	if dbHeight == -1 {
 		log.Fatal(errors.Wrap(err, "failed to query the latest block height saved in database"))
 	}
 
-	// latestBlockHeight, err := client.GetLatestBlockHeight()
-	// if err != nil {
-	// 	logger.Error("Not found block from lcd", logger.String("err", err.Error()))
-	// }
-	// // Synchronizing blocks from the scratch will return 0 and will ingest accordingly.
-	// // Skip the first block since it has no pre-commits
-	// if dbHeight == 0 {
-	// 	dbHeight = 1
-	// }
+	latestBlockHeight, err := client.GetLatestBlockHeight()
+	if err != nil {
+		logger.Error("Not found block from lcd", logger.String("err", err.Error()))
+	}
+	// Synchronizing blocks from the scratch will return 0 and will ingest accordingly.
+	// Skip the first block since it has no pre-commits
+	if dbHeight == 0 {
+		dbHeight = 1
+	}
 
-	// // Ingest all blocks up to the latest height
-	// for i := dbHeight + 1; i <= latestBlockHeight; i++ {
-	// 	err = process(i)
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// 	fmt.Printf("synced block %d/%d \n", i, latestBlockHeight)
-	// }
+	// Ingest all blocks up to the latest height
+	for i := dbHeight + 1; i <= latestBlockHeight; i++ {
+		err = process(i)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("synced block %d/%d \n", i, latestBlockHeight)
+	}
 
 	return nil
 }
@@ -90,29 +91,25 @@ func process(height int64) error {
 	if err != nil {
 		return fmt.Errorf("failed to query block using rpc client: %s", err)
 	}
-	orm.Save("block", block)
 
 	resultTxs, err := client.GetTxs(height)
 	if err != nil {
 		return fmt.Errorf("failed to get transactions: %s", err)
 	}
 
-	for _, responseTx := range resultTxs.TxResponse {
-		orm.Save("transaction", responseTx)
+	lastCommitHeight, err := strconv.ParseInt(block.Block.LastCommit.Height, 10, 64)
+	valSet, err := client.GetValidatorSet(lastCommitHeight)
+	if err != nil {
+		return fmt.Errorf("failed to query validator set using rpc client: %s", err)
 	}
 
-	// valSet, err := ex.client.GetValidatorSet(block.Block.LastCommit.Height())
-	// if err != nil {
-	// 	return fmt.Errorf("failed to query validator set using rpc client: %s", err)
-	// }
-
-	// vals, err := ex.client.GetValidators()
-	// if err != nil {
-	// 	return fmt.Errorf("failed to query validators using rpc client: %s", err)
-	// }
+	vals, err := client.GetValidators()
+	if err != nil {
+		return fmt.Errorf("failed to query validators using rpc client: %s", err)
+	}
 
 	// // TODO: Reward Fees Calculation
-	// resultBlock, err := ex.getBlock(block)
+	// resultBlock, err := GetBlock(block)
 	// if err != nil {
 	// 	return fmt.Errorf("failed to get block: %s", err)
 	// }
