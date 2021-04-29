@@ -3,15 +3,12 @@ package client
 import (
 	"encoding/json"
 	"fmt"
-	"log"
-	"strconv"
 
 	"github.com/cosmos-gaminghub/explorer-backend/conf"
 	"github.com/cosmos-gaminghub/explorer-backend/lcd"
 	types "github.com/cosmos-gaminghub/explorer-backend/lcd"
 	"github.com/cosmos-gaminghub/explorer-backend/logger"
 	"github.com/cosmos-gaminghub/explorer-backend/utils"
-	"github.com/pkg/errors"
 )
 
 // GetBlock queries for a block by height. An error is returned if the query fails.
@@ -42,12 +39,7 @@ func GetLatestBlockHeight() (int64, error) {
 	if err := json.Unmarshal(resBytes, &result); err != nil {
 		logger.Error("Unmarshal block error", logger.String("err", err.Error()))
 	}
-
-	latestBlockHeight, err := strconv.ParseInt(result.Block.Header.Height, 10, 64)
-	if latestBlockHeight == -1 {
-		log.Fatal(errors.Wrap(err, "failed to query the latest block height on the active network"))
-	}
-
+	latestBlockHeight, _ := utils.ParseInt(result.Block.Header.Height)
 	return latestBlockHeight, nil
 }
 
@@ -87,14 +79,14 @@ func GetValidatorSet(height int64) (types.ValidatorSet, error) {
 
 // GetValidators returns validators detail information in Tendemrint validators in active chain
 // An error returns if the query fails.
-func GetValidators() (types.ValidatorsRespond, error) {
+func GetValidators() (types.ValidatorsResult, error) {
 	url := fmt.Sprintf(lcd.UrlValidators, conf.Get().Hub.LcdUrl)
 	resBytes, err := utils.Get(url)
 	if err != nil {
 		logger.Error("Get validators error", logger.String("err", err.Error()))
 	}
 
-	var result types.ValidatorsRespond
+	var result types.ValidatorsResult
 	if err := json.Unmarshal(resBytes, &result); err != nil {
 		logger.Error("Unmarshal validators error", logger.String("err", err.Error()))
 	}
@@ -121,12 +113,12 @@ func GetBankParams() (types.BankParam, error) {
 	url := fmt.Sprintf(lcd.UrlModuleParam, conf.Get().Hub.LcdUrl, "bank")
 	resBytes, err := utils.Get(url)
 	if err != nil {
-		logger.Error("Get validators error", logger.String("err", err.Error()))
+		logger.Error("Get bank param error", logger.String("err", err.Error()))
 	}
 
 	var result types.BankParam
 	if err := json.Unmarshal(resBytes, &result); err != nil {
-		logger.Error("Unmarshal validators error", logger.String("err", err.Error()))
+		logger.Error("Unmarshal bank param error", logger.String("err", err.Error()))
 	}
 
 	return result, nil
@@ -136,27 +128,27 @@ func GetDistributionParams() (types.DistributionParam, error) {
 	url := fmt.Sprintf(lcd.UrlModuleParam, conf.Get().Hub.LcdUrl, "distribution")
 	resBytes, err := utils.Get(url)
 	if err != nil {
-		logger.Error("Get validators error", logger.String("err", err.Error()))
+		logger.Error("Get distribution param error", logger.String("err", err.Error()))
 	}
 
 	var result types.DistributionParam
 	if err := json.Unmarshal(resBytes, &result); err != nil {
-		logger.Error("Unmarshal validators error", logger.String("err", err.Error()))
+		logger.Error("Unmarshal distribution param error", logger.String("err", err.Error()))
 	}
 
 	return result, nil
 }
 
-func GetGovParams(govType string) (types.ValidatorsRespond, error) {
+func GetGovParams(govType string) (types.GovParam, error) {
 	url := fmt.Sprintf(lcd.UrlModuleParam, conf.Get().Hub.LcdUrl, govType)
 	resBytes, err := utils.Get(url)
 	if err != nil {
-		logger.Error("Get validators error", logger.String("err", err.Error()))
+		logger.Error("Get gov params error", logger.String("err", err.Error()))
 	}
 
-	var result types.ValidatorsRespond
+	var result types.GovParam
 	if err := json.Unmarshal(resBytes, &result); err != nil {
-		logger.Error("Unmarshal validators error", logger.String("err", err.Error()))
+		logger.Error("Unmarshal gov params error", logger.String("err", err.Error()))
 	}
 
 	return result, nil

@@ -64,7 +64,7 @@ type Validator struct {
 		Key  string `json:"key"`
 	} `json:"consensus_pubkey"`
 	Jailed            bool        `json:"jailed"`
-	Status            int         `json:"status"`
+	Status            string      `json:"status"`
 	Tokens            string      `json:"tokens"`
 	DelegatorShares   string      `json:"delegator_shares"`
 	Description       Description `json:"description"`
@@ -74,7 +74,7 @@ type Validator struct {
 	MinSelfDelegation string      `json:"min_self_delegation"`
 }
 
-type ValidatorsRespond struct {
+type ValidatorsResult struct {
 	Validators []Validator `json:"validators"`
 }
 
@@ -106,8 +106,8 @@ type Commission struct {
 		Rate          string `json:"rate"`
 		MaxRate       string `json:"max_rate"`
 		MaxChangeRate string `json:"max_change_rate"`
-	}
-	UpdateTime time.Time `json:"update_time"`
+	} `json:"commission_rates"`
+	UpdateTime string `json:"update_time"`
 }
 
 type NodeInfoVo struct {
@@ -355,46 +355,37 @@ type GenesisVo struct {
 }
 
 type BlockResult struct {
-	Block struct {
+	BlockId BlockId `json:"block_id"`
+	Block   struct {
 		Header struct {
 			Version struct {
 				Block string `json:"block"`
 				App   string `json:"app"`
 			} `json:"version"`
-			ChainID     string    `json:"chain_id"`
-			Height      string    `json:"height"`
-			Time        time.Time `json:"time"`
-			NumTxs      string    `json:"num_txs"`
-			TotalTxs    string    `json:"total_txs"`
-			LastBlockID struct {
-				Hash  string `json:"hash"`
-				Parts struct {
-					Total string `json:"total"`
-					Hash  string `json:"hash"`
-				} `json:"parts"`
-			} `json:"last_block_id"`
-			LastCommitHash     string `json:"last_commit_hash"`
-			DataHash           string `json:"data_hash"`
-			ValidatorsHash     string `json:"validators_hash"`
-			NextValidatorsHash string `json:"next_validators_hash"`
-			ConsensusHash      string `json:"consensus_hash"`
-			AppHash            string `json:"app_hash"`
-			LastResultsHash    string `json:"last_results_hash"`
-			EvidenceHash       string `json:"evidence_hash"`
-			ProposerAddress    string `json:"proposer_address"`
+			ChainID            string    `json:"chain_id"`
+			Height             string    `json:"height"`
+			Time               time.Time `json:"time"`
+			NumTxs             string    `json:"num_txs"`
+			TotalTxs           string    `json:"total_txs"`
+			LastBlockID        BlockId   `json:"last_block_id"`
+			LastCommitHash     string    `json:"last_commit_hash"`
+			DataHash           string    `json:"data_hash"`
+			ValidatorsHash     string    `json:"validators_hash"`
+			NextValidatorsHash string    `json:"next_validators_hash"`
+			ConsensusHash      string    `json:"consensus_hash"`
+			AppHash            string    `json:"app_hash"`
+			LastResultsHash    string    `json:"last_results_hash"`
+			EvidenceHash       string    `json:"evidence_hash"`
+			ProposerAddress    string    `json:"proposer_address"`
 		} `json:"header"`
+		Data struct {
+			Txs []string `json:"txs"`
+		} `json:"data`
 		LastCommit struct {
-			Height  string `json:"height"`
-			Round   string `json:"round"`
-			BlockID struct {
-				Hash  string `json:"hash"`
-				Parts struct {
-					Total string `json:"total"`
-					Hash  string `json:"hash"`
-				} `json:"part_set_header"`
-			} `json:"block_id"`
+			Height     string  `json:"height"`
+			Round      int64   `json:"round"`
+			BlockID    BlockId `json:"block_id"`
 			Signatures []struct {
-				BlockIdFlag      int       `json:"block_id_flag"`
 				Timestamp        time.Time `json:"timestamp"`
 				ValidatorAddress string    `json:"validator_address"`
 				Signature        string    `json:"signature"`
@@ -403,11 +394,19 @@ type BlockResult struct {
 	} `json:"block"`
 }
 
+type BlockId struct {
+	Hash  string `json:"hash"`
+	Parts struct {
+		Total string `json:"total"`
+		Hash  string `json:"hash"`
+	} `json:"parts"`
+}
+
 type ValidatorSet struct {
 	BlockHeight string `json:"block_height"`
 	Validators  []struct {
-		Address string `json:"address"`
-		PubKey  struct {
+		ConsensusAddr string `json:"address"`
+		PubKey        struct {
 			Type string `json:"@type"`
 			Key  string `json:"key"`
 		} `json:"pub_key"`
@@ -563,28 +562,33 @@ type BlockCoinFlowVo struct {
 type Tx struct {
 	Type string `json:"@type"`
 	Body struct {
-		Messages []struct {
-			Type        string `json:"@type"`
-			FromAddress string `json:"from_address"`
-			ToAddress   string `json:"to_address"`
-			Amount      []struct {
-				Denom  string `json:"denom"`
-				Amount string `json:"amount"`
-			} `json:"amount"`
-		} `json:"messages"`
+		Messages []TxMessages `json:"messages"`
+		Memo     string       `json:"memo"`
 	} `json:"body"`
 	AuthInfo   TxAuthInfo `json:"auth_info"`
 	Signatures []string   `json:"signatures"`
 }
 
+type TxMessages struct {
+	Type        string `json:"@type"`
+	FromAddress string `json:"from_address"`
+	ToAddress   string `json:"to_address"`
+	Amount      []struct {
+		Denom  string `json:"denom"`
+		Amount string `json:"amount"`
+	} `json:"amount"`
+}
+
 type TxAuthInfo struct {
 	SignerInfos []TxSignerInfo `json:"signer_infos"`
-	Fee         struct {
-		Amount   []string `json:"amount"`
-		GasLimit string   `json:"gas_limit"`
-		Granter  string   `json:"granter"`
-		Payer    string   `json:"payer"`
-	}
+	FeeInfo     Fee            `json:"fee"`
+}
+
+type Fee struct {
+	Amount   []string `json:"amount"`
+	GasLimit string   `json:"gas_limit"`
+	Granter  string   `json:"granter"`
+	Payer    string   `json:"payer"`
 }
 
 type TxSignerInfo struct {
@@ -627,15 +631,16 @@ type AssetGateways struct {
 
 type TxResult struct {
 	TxResponse []struct {
-		Height    string `json:"height"`
-		TxHash    string `json:"tx_hash"`
-		Code      uint32 `json:"code"`
-		RawLog    string `json:"raw_log"`
-		Logs      []Log  `json:"logs"`
-		Info      string `json:"info"`
-		GasUsed   string `json:"gas_used"`
-		GasWanted string `json:"gas_wanted"`
-		Tx        Tx     `json:"tx"`
+		Height    string    `json:"height"`
+		TxHash    string    `json:"tx_hash"`
+		Code      uint32    `json:"code"`
+		RawLog    string    `json:"raw_log"`
+		Logs      []Log     `json:"logs"`
+		Info      string    `json:"info"`
+		GasUsed   string    `json:"gas_used"`
+		GasWanted string    `json:"gas_wanted"`
+		Tx        Tx        `json:"tx"`
+		Time      time.Time `json:"timestamp"`
 	} `json:"tx_responses"`
 }
 

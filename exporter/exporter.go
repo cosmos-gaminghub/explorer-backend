@@ -3,7 +3,6 @@ package exporter
 import (
 	"fmt"
 	"log"
-	"strconv"
 	"time"
 
 	"github.com/cosmos-gaminghub/explorer-backend/client"
@@ -74,7 +73,7 @@ func sync() error {
 	}
 
 	// Ingest all blocks up to the latest height
-	for i := dbHeight + 1; i <= latestBlockHeight; i++ {
+	for i := 6032288 + 1; i <= latestBlockHeight; i++ {
 		err = process(i)
 		if err != nil {
 			return err
@@ -92,39 +91,47 @@ func process(height int64) error {
 	if err != nil {
 		return fmt.Errorf("failed to query block using rpc client: %s", err)
 	}
-	orm.Save("blocks", block)
 
-	resultTxs, err := client.GetTxs(height)
+	txs, err := client.GetTxs(height)
 	if err != nil {
 		return fmt.Errorf("failed to get transactions: %s", err)
 	}
-	orm.Save("txs", resultTxs)
-
-	lastCommitHeight, err := strconv.ParseInt(block.Block.LastCommit.Height, 10, 64)
-	valSet, err := client.GetValidatorSet(lastCommitHeight)
-	if err != nil {
-		return fmt.Errorf("failed to query validator set using rpc client: %s", err)
-	}
-	orm.Save("validator_sets", valSet)
+	// lastCommitHeight, err := strconv.ParseInt(block.Block.LastCommit.Height, 10, 64)
+	// valSet, err := client.GetValidatorSet(lastCommitHeight)
+	// if err != nil {
+	// 	return fmt.Errorf("failed to query validator set using rpc client: %s", err)
+	// }
 
 	vals, err := client.GetValidators()
 	if err != nil {
 		return fmt.Errorf("failed to query validators using rpc client: %s", err)
 	}
-	orm.Save("validators", vals)
 
-	// // TODO: Reward Fees Calculation
-	// resultBlock, err := GetBlock(block)
-	// if err != nil {
-	// 	return fmt.Errorf("failed to get block: %s", err)
-	// }
+	// TODO: Reward Fees Calculation
+	resultBlock, err := GetBlock(block)
+	if err != nil {
+		return fmt.Errorf("failed to get block: %s", err)
+	}
 
-	// resultValidators, err := ex.getValidators(vals)
-	// if err != nil {
-	// 	return fmt.Errorf("failed to get validators: %s", err)
-	// }
+	orm.Save("block", resultBlock)
 
-	// resultPreCommits, err := ex.getPreCommits(block.Block.LastCommit, valSet)
+	resultTxs, err := GetTxs(txs)
+	if err != nil {
+		return fmt.Errorf("failed to get txs: %s", err)
+	}
+	for _, txs := range resultTxs {
+		orm.Save("transaction", txs)
+	}
+
+	resultValidators, err := GetValidators(vals, block)
+	if err != nil {
+		return fmt.Errorf("failed to get validators: %s", err)
+	}
+	for _, validator := range resultValidators {
+		orm.Save("validator", validator)
+	}
+
+	// resultPreCommits, err := GetPreCommits(block.Block.LastCommit, valSet)
 	// if err != nil {
 	// 	return fmt.Errorf("failed to get precommits: %s", err)
 	// }

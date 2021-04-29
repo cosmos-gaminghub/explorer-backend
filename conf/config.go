@@ -29,13 +29,6 @@ const (
 	KeyCurEnv        = "CUR_ENV"
 	KeyInitialSupply = "INITIAL_SUPPLY"
 
-	KeyPrefixAccAddr  = "PrefixAccAddr"
-	KeyPrefixAccPub   = "PrefixAccPub"
-	KeyPrefixValAddr  = "PrefixValAddr"
-	KeyPrefixValPub   = "PrefixValPub"
-	KeyPrefixConsAddr = "PrefixConsAddr"
-	KeyPrefixConsPub  = "PrefixConsPub"
-
 	KeyCronTimeAssetGateways       = "CronTimeAssetGateways"
 	KeyCronTimeAssetTokens         = "CronTimeAssetTokens"
 	KeyCronTimeGovParams           = "CronTimeGovParams"
@@ -64,6 +57,13 @@ const (
 	EnvironmentQa      = "qa"
 	EnvironmentStage   = "stage"
 	EnvironmentProd    = "prod"
+
+	KeyPrefixAccAddr  = "cosmos"
+	KeyPrefixAccPub   = "cosmospub"
+	KeyPrefixValAddr  = "cosmosvaloper"
+	KeyPrefixValPub   = "cosmosvaloperpub"
+	KeyPrefixConsAddr = "cosmosvalcons"
+	KeyPrefixConsPub  = "cosmosvalconspub"
 
 	InitialSupply      = "2000000000" //IRIS
 	DefaultEnvironment = EnvironmentDevelop
@@ -112,27 +112,21 @@ func init() {
 
 func loadDefault() {
 	defaultConfig[EnvironmentDevelop] = map[string]string{
-		KeyDbAddr:         "127.0.0.1:27017",
-		KeyDATABASE:       "mydb",
-		KeyDbUser:         "",
-		KeyDbPwd:          "",
-		KeyDbPoolLimit:    "4096",
-		KeyServerPort:     "8080",
-		KeyAddrHubLcd:     "http://108.61.162.170:1317",
-		KeyAddrHubNode:    "http://108.61.162.170:26657",
-		KeyAddrFaucet:     "http://127.0.0.1:30200",
-		KeyChainId:        "bifrost-2",
-		KeyApiVersion:     "v0.6.5",
-		KeyMaxDrawCnt:     "10",
-		KeyPrefixAccAddr:  "cosmos",
-		KeyPrefixAccPub:   "cosmospub",
-		KeyPrefixValAddr:  "cosmosvaloper",
-		KeyPrefixValPub:   "cosmosvaloperpub",
-		KeyPrefixConsAddr: "cosmosvalcons",
-		KeyPrefixConsPub:  "cosmosvalconspub",
-		KeyShowFaucet:     "1",
-		KeyCurEnv:         "dev",
-		KeyInitialSupply:  InitialSupply,
+		KeyDbAddr:        "127.0.0.1:27017",
+		KeyDATABASE:      "test",
+		KeyDbUser:        "",
+		KeyDbPwd:         "",
+		KeyDbPoolLimit:   "4096",
+		KeyServerPort:    "8080",
+		KeyAddrHubLcd:    "http://198.13.33.206:1317",
+		KeyAddrHubNode:   "http://198.13.33.206:26657",
+		KeyAddrFaucet:    "http://127.0.0.1:30200",
+		KeyChainId:       "bifrost-2",
+		KeyApiVersion:    "v0.6.5",
+		KeyMaxDrawCnt:    "10",
+		KeyShowFaucet:    "1",
+		KeyCurEnv:        "dev",
+		KeyInitialSupply: InitialSupply,
 	}
 }
 

@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	CollectionNmBlock = "blocks"
+	CollectionNmBlock = "block"
 
 	Block_Field_Height          = "height"
 	Block_Field_Hash            = "hash"
@@ -131,7 +131,6 @@ func (_ Block) QueryLatestBlockFromDB() (Block, error) {
 	} else {
 		logger.Error("query db error", logger.String("err", err.Error()))
 	}
-
 	return Block{}, err
 }
 
