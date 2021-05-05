@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/cosmos-gaminghub/explorer-backend/client"
-	"github.com/cosmos-gaminghub/explorer-backend/conf"
 	"github.com/cosmos-gaminghub/explorer-backend/logger"
 	"github.com/cosmos-gaminghub/explorer-backend/orm"
 	"github.com/cosmos-gaminghub/explorer-backend/orm/document"
@@ -28,7 +27,6 @@ type Exporter struct {
 // Start starts to synchronize Binance Chain data.
 func Start() error {
 	fmt.Println("Starting Chain Exporter...")
-	fmt.Println(conf.Get().Hub.LcdUrl)
 	go func() {
 		for {
 			fmt.Println("start - sync blockchain")
@@ -69,11 +67,11 @@ func sync() error {
 	// Synchronizing blocks from the scratch will return 0 and will ingest accordingly.
 	// Skip the first block since it has no pre-commits
 	if dbHeight == 0 {
-		dbHeight = 1
+		dbHeight = 5200790
 	}
 
 	// Ingest all blocks up to the latest height
-	for i := 6032288 + 1; i <= latestBlockHeight; i++ {
+	for i := dbHeight + 1; i <= latestBlockHeight; i++ {
 		err = process(i)
 		if err != nil {
 			return err
@@ -112,7 +110,6 @@ func process(height int64) error {
 	if err != nil {
 		return fmt.Errorf("failed to get block: %s", err)
 	}
-
 	orm.Save("block", resultBlock)
 
 	resultTxs, err := GetTxs(txs)
@@ -123,7 +120,9 @@ func process(height int64) error {
 		orm.Save("transaction", txs)
 	}
 
-	resultValidators, err := GetValidators(vals, block)
+	SaveMissedBlock(vals, block)
+
+	resultValidators, err := GetValidators(vals)
 	if err != nil {
 		return fmt.Errorf("failed to get validators: %s", err)
 	}

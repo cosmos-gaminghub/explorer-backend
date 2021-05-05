@@ -62,25 +62,40 @@ func GetTxs(height int64) (types.TxResult, error) {
 
 // GetValidatorSet returns all the known Tendermint validators for a given block
 // height. An error is returned if the query fails.
-func GetValidatorSet(height int64) (types.ValidatorSet, error) {
-	url := fmt.Sprintf(lcd.UrlValidatorSet, conf.Get().Hub.LcdUrl, height)
+func GetValidatorSet(height int64, offset int64) ([]types.ValidatorOfValidatorSet, error) {
+	url := fmt.Sprintf(lcd.UrlValidatorSet, conf.Get().Hub.LcdUrl, height, offset)
 	resBytes, err := utils.Get(url)
 	if err != nil {
 		logger.Error("Get validator set error", logger.String("err", err.Error()))
 	}
 
 	var result types.ValidatorSet
+	validators := make([]types.ValidatorOfValidatorSet, 0, 125)
 	if err := json.Unmarshal(resBytes, &result); err != nil {
 		logger.Error("Unmarshal validator set error", logger.String("err", err.Error()))
 	}
+	validators = append(validators, result.Validators...)
 
-	return result, nil
+	if len(validators) == lcd.DefaultValidatorSetLimit {
+		valSet, _ := GetValidatorSet(height, lcd.DefaultValidatorSetLimit)
+		validators = append(validators, valSet...)
+	}
+
+	return validators, nil
+}
+
+func FormatValidatorSet(valSets []types.ValidatorOfValidatorSet) map[string]int {
+	validatorSets := make(map[string]int)
+	for index, valSet := range valSets {
+		validatorSets[valSet.PubKey.Key] = index
+	}
+	return validatorSets
 }
 
 // GetValidators returns validators detail information in Tendemrint validators in active chain
 // An error returns if the query fails.
 func GetValidators() (types.ValidatorsResult, error) {
-	url := fmt.Sprintf(lcd.UrlValidators, conf.Get().Hub.LcdUrl)
+	url := fmt.Sprintf(lcd.UrlValidators, conf.Get().Hub.LcdUrl, types.DefaultValidatorLimit)
 	resBytes, err := utils.Get(url)
 	if err != nil {
 		logger.Error("Get validators error", logger.String("err", err.Error()))

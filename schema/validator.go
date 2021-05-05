@@ -9,11 +9,11 @@ import (
 // Validator defines the structure for validator information.
 type Validator struct {
 	OperatorAddr    string            `bson:"operator_address"`
-	ConsensusAddr   string            `bson:"consensus_address"`
+	ConsensusPubkey string            `bson:"consensus_pubkey"`
 	AccountAddr     string            `bson:"account_address"`
 	Jailed          bool              `bson:"jailed"`
 	Status          string            `bson:"status"`
-	Tokens          string            `bson:"tokens" json:"tokens"`
+	Tokens          int64             `bson:"tokens" json:"tokens"`
 	DelegatorShares string            `bson:"delegator_shares"`
 	Description     types.Description `bson:"description" json:"description"`
 	UnbondingHeight string            `bson:"unbonding_height"`
@@ -27,7 +27,7 @@ type Validator struct {
 func NewValidator(v Validator) *Validator {
 	return &Validator{
 		OperatorAddr:    v.OperatorAddr,
-		ConsensusAddr:   v.ConsensusAddr,
+		ConsensusPubkey: v.ConsensusPubkey,
 		AccountAddr:     v.AccountAddr,
 		Jailed:          v.Jailed,
 		Status:          v.Status,

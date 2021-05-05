@@ -11,7 +11,7 @@ const (
 	UrlAccount                = "%s/bank/accounts/%s"
 	UrlBankTokenStats         = "%s/bank/token-stats"
 	UrlValidator              = "%s/stake/validators/%s"
-	UrlValidators             = "%s/cosmos/staking/v1beta1/validators"
+	UrlValidators             = "%s/cosmos/staking/v1beta1/validators?pagination.limit=%d"
 	UrlDelegationByVal        = "%s/stake/validators/%s/delegations"
 	UrlDelegationsByDelegator = "%s/stake/delegators/%s/delegations"
 	//UrlDelegationsFromValidatorByDelegator = "%s/stake/delegators/%s/validators/%s"
@@ -26,7 +26,7 @@ const (
 	UrlWithdrawAddress                           = "%s/distribution/%s/withdraw-address"
 	UrlBlockLatest                               = "%s/cosmos/base/tendermint/v1beta1/blocks/latest"
 	UrlBlock                                     = "%s/cosmos/base/tendermint/v1beta1/blocks/%d"
-	UrlValidatorSet                              = "%s/cosmos/base/tendermint/v1beta1/validatorsets/%d"
+	UrlValidatorSet                              = "%s/cosmos/base/tendermint/v1beta1/validatorsets/%d?pagination.offset=%d"
 	UrlValidatorSetLatest                        = "%s/cosmos/base/tendermint/v1beta1/validatorsets/latest"
 	UrlStakePool                                 = "%s/stake/pool"
 	UrlBlocksResult                              = "%s/block-results/%d"
@@ -44,6 +44,9 @@ const (
 	UrlHtlcInfo                                  = "%s/htlc/htlcs/%s"
 	UrlProposalVoters                            = "%s/gov/proposals/%v/votes"
 	CommunityTaxAddr                             = "iaa18rtw90hxz4jsgydcusakz6q245jh59kfma3e5h"
+
+	DefaultValidatorSetLimit = 100
+	DefaultValidatorLimit    = 281
 )
 
 type AccountVo struct {
@@ -403,16 +406,18 @@ type BlockId struct {
 }
 
 type ValidatorSet struct {
-	BlockHeight string `json:"block_height"`
-	Validators  []struct {
-		ConsensusAddr string `json:"address"`
-		PubKey        struct {
-			Type string `json:"@type"`
-			Key  string `json:"key"`
-		} `json:"pub_key"`
-		ProposerPriority string `json:"proposer_priority"`
-		VotingPower      string `json:"voting_power"`
-	} `json:"validators"`
+	BlockHeight string                    `json:"block_height"`
+	Validators  []ValidatorOfValidatorSet `json:"validators"`
+}
+
+type ValidatorOfValidatorSet struct {
+	ConsensusAddr string `json:"address"`
+	PubKey        struct {
+		Type string `json:"@type"`
+		Key  string `json:"key"`
+	} `json:"pub_key"`
+	ProposerPriority string `json:"proposer_priority"`
+	VotingPower      string `json:"voting_power"`
 }
 
 type StakePoolVo struct {
