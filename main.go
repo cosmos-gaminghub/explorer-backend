@@ -12,7 +12,7 @@ import (
 func main() {
 	ed25519Test()
 	secp256k1Test()
-	getCCNPubKeys()
+	getCCNAddrs()
 }
 
 func ed25519Test() {
@@ -59,7 +59,7 @@ func secp256k1Test() {
 	log.Printf("validator operator address: %s", valAddress)
 }
 
-func getCCNPubKeys() {
+func getCCNAddrs() {
 	log.Println("---Get address from each Bech32 addresses---")
 	accAddrBech32Str := "cosmos1qaa9zej9a0ge3ugpx3pxyx602lxh3ztqda85ee"
 	valAddrBech32Str := "cosmosvaloper1qaa9zej9a0ge3ugpx3pxyx602lxh3ztqgfnp42"
