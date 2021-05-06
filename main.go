@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/base64"
 	"encoding/hex"
 	"log"
 
@@ -69,17 +70,24 @@ func getCCNAddrs() {
 	if err != nil {
 		panic(err)
 	}
-	log.Printf("account address: %s", hex.EncodeToString(accAddress))
+	log.Printf("address: %s", hex.EncodeToString(accAddress))
 
 	valAddress, err := types.ValAddressFromBech32(valAddrBech32Str)
 	if err != nil {
 		panic(err)
 	}
-	log.Printf("account address: %s", hex.EncodeToString(valAddress))
+	log.Printf("address: %s", hex.EncodeToString(valAddress))
 
 	consPubKey, err := types.GetPubKeyFromBech32(types.Bech32PubKeyTypeConsPub, consPubAddrBech32Str)
 	if err != nil {
 		panic(err)
 	}
-	log.Printf("consensus address: %s", consPubKey.Address().String())
+	log.Printf("consensus public key: %s", consPubKey)
+	log.Printf("base64 encoded consensus public key: %s", base64.StdEncoding.EncodeToString(consPubKey.Bytes()))
+
+	address := consPubKey.Address()
+	log.Printf("address: %s", address.String())
+
+	consAddress := types.GetConsAddress(consPubKey)
+	log.Printf("consensus address: %s", consAddress)
 }
