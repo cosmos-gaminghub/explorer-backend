@@ -33,6 +33,12 @@ func ed25519Test() {
 		panic(err)
 	}
 	log.Printf("consensus address: %s", consAddress)
+
+	consPub, err := types.Bech32ifyPubKey(types.Bech32PubKeyTypeConsPub, edPubKey)
+	if err != nil {
+		panic(err)
+	}
+	log.Printf("consensus pub address: %s", consPub)
 }
 
 func secp256k1Test() {
