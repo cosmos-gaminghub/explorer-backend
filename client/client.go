@@ -84,10 +84,18 @@ func GetValidatorSet(height int64, offset int64) ([]types.ValidatorOfValidatorSe
 	return validators, nil
 }
 
-func FormatValidatorSet(valSets []types.ValidatorOfValidatorSet) map[string]int {
+func FormatValidatorSetPubkeyToIndex(valSets []types.ValidatorOfValidatorSet) map[string]int {
 	validatorSets := make(map[string]int)
 	for index, valSet := range valSets {
 		validatorSets[valSet.PubKey.Key] = index
+	}
+	return validatorSets
+}
+
+func FormatValidatorSetPubkeyToAddress(valSets []types.ValidatorOfValidatorSet) map[string]string {
+	validatorSets := make(map[string]string)
+	for _, valSet := range valSets {
+		validatorSets[valSet.PubKey.Key] = valSet.ConsensusAddr
 	}
 	return validatorSets
 }

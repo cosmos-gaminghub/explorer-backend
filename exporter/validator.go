@@ -3,6 +3,7 @@ package exporter
 import (
 	"fmt"
 
+	"github.com/cosmos-gaminghub/explorer-backend/client"
 	"github.com/cosmos-gaminghub/explorer-backend/conf"
 	types "github.com/cosmos-gaminghub/explorer-backend/lcd"
 	"github.com/cosmos-gaminghub/explorer-backend/orm/document"
@@ -11,7 +12,8 @@ import (
 )
 
 // getValidators parses validators information and wrap into Precommit schema struct
-func GetValidators(vals types.ValidatorsResult) (validators []*schema.Validator, err error) {
+func GetValidators(vals types.ValidatorsResult, validatorSets []types.ValidatorOfValidatorSet) (validators []*schema.Validator, err error) {
+	validatorSetsFormat := client.FormatValidatorSetPubkeyToAddress(validatorSets)
 	for _, validator := range vals.Validators {
 
 		_, err := document.Validator{}.QueryValidatorDetailByOperatorAddr(validator.OperatorAddress)
@@ -19,8 +21,13 @@ func GetValidators(vals types.ValidatorsResult) (validators []*schema.Validator,
 			return nil, fmt.Errorf("unexpected error when checking validator existence: %s", err)
 		}
 		tokens, _ := utils.ParseInt(validator.Tokens)
+		var consensusAddress string
+		if val, ok := validatorSetsFormat[validator.ConsensusPubkey.Key]; ok {
+			consensusAddress = val
+		}
 		val := &schema.Validator{
 			OperatorAddr:    validator.OperatorAddress,
+			ConsensusAddres: consensusAddress,
 			ConsensusPubkey: validator.ConsensusPubkey.Key,
 			AccountAddr:     utils.Convert(conf.KeyPrefixAccAddr, validator.OperatorAddress),
 			Jailed:          validator.Jailed,

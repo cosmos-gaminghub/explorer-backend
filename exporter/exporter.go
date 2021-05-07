@@ -120,9 +120,14 @@ func process(height int64) error {
 		orm.Save("transaction", txs)
 	}
 
-	SaveMissedBlock(vals, block)
+	validatorSets, err := client.GetValidatorSet(height, 0)
+	if err != nil {
+		return fmt.Errorf("failed to get txs: %s", err)
+	}
 
-	resultValidators, err := GetValidators(vals)
+	SaveMissedBlock(vals, validatorSets, block)
+
+	resultValidators, err := GetValidators(vals, validatorSets)
 	if err != nil {
 		return fmt.Errorf("failed to get validators: %s", err)
 	}

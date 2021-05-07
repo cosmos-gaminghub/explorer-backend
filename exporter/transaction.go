@@ -65,20 +65,14 @@ func GetTxs(txs types.TxResult) (transactions []*schema.Transaction, err error) 
 			return []*schema.Transaction{}, err
 		}
 		t := schema.Transaction{
-			Height:     height,
-			TxHash:     tx.TxHash,
-			Code:       tx.Code,
-			Messages:   tx.Tx.Body.Messages,
-			Signatures: tx.Tx.Signatures,
-			Memo:       tx.Tx.Body.Memo,
-			GasWanted:  gasWanted,
-			GasUsed:    gasUsed,
-			Timestamp:  tx.Time,
-			Fee: types.Fee{
-				Amount:   tx.Tx.AuthInfo.FeeInfo.Amount,
-				GasLimit: tx.Tx.AuthInfo.FeeInfo.GasLimit,
-				Granter:  tx.Tx.AuthInfo.FeeInfo.Granter,
-				Payer:    tx.Tx.AuthInfo.FeeInfo.Payer},
+			Height:    height,
+			TxHash:    tx.TxHash,
+			Code:      tx.Code,
+			Memo:      tx.Tx.Body.Memo,
+			GasWanted: gasWanted,
+			GasUsed:   gasUsed,
+			Timestamp: tx.Time,
+			Logs:      tx.Logs,
 		}
 
 		transactions = append(transactions, &t)

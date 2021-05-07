@@ -636,21 +636,21 @@ type AssetGateways struct {
 
 type TxResult struct {
 	TxResponse []struct {
-		Height    string    `json:"height"`
-		TxHash    string    `json:"tx_hash"`
-		Code      uint32    `json:"code"`
-		RawLog    string    `json:"raw_log"`
-		Logs      []Log     `json:"logs"`
-		Info      string    `json:"info"`
-		GasUsed   string    `json:"gas_used"`
-		GasWanted string    `json:"gas_wanted"`
-		Tx        Tx        `json:"tx"`
-		Time      time.Time `json:"timestamp"`
+		Height    string `json:"height"`
+		TxHash    string `json:"txhash"`
+		Code      uint32 `json:"code"`
+		RawLog    string `json:"raw_log"`
+		Logs      []Log  `json:"logs"`
+		Info      string `json:"info"`
+		GasUsed   string `json:"gas_used"`
+		GasWanted string `json:"gas_wanted"`
+		Tx        Tx     `json:"tx"`
+		Time      string `json:"timestamp"`
 	} `json:"tx_responses"`
 }
 
 type Log struct {
-	MsgIndex string  `json:"msg_index"`
+	MsgIndex int     `json:"msg_index"`
 	Log      string  `json:"log"`
 	Events   []Event `json:"events"`
 }

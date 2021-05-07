@@ -10,6 +10,7 @@ import (
 type Validator struct {
 	OperatorAddr    string            `bson:"operator_address"`
 	ConsensusPubkey string            `bson:"consensus_pubkey"`
+	ConsensusAddres string            `bson:"consensus_address"`
 	AccountAddr     string            `bson:"account_address"`
 	Jailed          bool              `bson:"jailed"`
 	Status          string            `bson:"status"`
@@ -28,6 +29,7 @@ func NewValidator(v Validator) *Validator {
 	return &Validator{
 		OperatorAddr:    v.OperatorAddr,
 		ConsensusPubkey: v.ConsensusPubkey,
+		ConsensusAddres: v.ConsensusAddres,
 		AccountAddr:     v.AccountAddr,
 		Jailed:          v.Jailed,
 		Status:          v.Status,
