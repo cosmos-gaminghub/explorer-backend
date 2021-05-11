@@ -590,10 +590,13 @@ type TxAuthInfo struct {
 }
 
 type Fee struct {
-	Amount   []string `json:"amount"`
-	GasLimit string   `json:"gas_limit"`
-	Granter  string   `json:"granter"`
-	Payer    string   `json:"payer"`
+	Amount []struct {
+		Denom  string `json:"denom"`
+		Amount string `json:"amount"`
+	} `json:"amount"`
+	GasLimit string `json:"gas_limit"`
+	Granter  string `json:"granter"`
+	Payer    string `json:"payer"`
 }
 
 type TxSignerInfo struct {
@@ -647,6 +650,24 @@ type TxResult struct {
 		Tx        Tx     `json:"tx"`
 		Time      string `json:"timestamp"`
 	} `json:"tx_responses"`
+	Txs []struct {
+		AuthInfo TxAuthInfo `json:"auth_info"`
+		Body     struct {
+			BodyMessage []BodyMessage `json:"messages"`
+			Memo        string        `json:"memo"`
+		} `json:"body"`
+		Signatures []string `json:"signatures"`
+	} `json:"txs"`
+}
+
+type BodyMessage struct {
+	Type        string `json:"@type"`
+	FromAddress string `bson:"from_address" json:"from_address"`
+	ToAddress   string `bson:"to_address" json:"to_address"`
+	Amount      []struct {
+		Denom  string `json:"denom"`
+		Amount string `json:"amount"`
+	} `bson:"amount" json:"amount"`
 }
 
 type Log struct {

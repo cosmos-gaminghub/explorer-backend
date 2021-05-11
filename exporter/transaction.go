@@ -15,7 +15,7 @@ func GetTxs(txs types.TxResult) (transactions []*schema.Transaction, err error) 
 		return []*schema.Transaction{}, nil
 	}
 
-	for _, tx := range txs.TxResponse {
+	for index, tx := range txs.TxResponse {
 		fmt.Println(tx)
 		// var stdTx txtypes.StdTx
 		// err = ex.cdc.UnmarshalBinaryLengthPrefixed([]byte(tx.Tx), &stdTx)
@@ -65,14 +65,17 @@ func GetTxs(txs types.TxResult) (transactions []*schema.Transaction, err error) 
 			return []*schema.Transaction{}, err
 		}
 		t := schema.Transaction{
-			Height:    height,
-			TxHash:    tx.TxHash,
-			Code:      tx.Code,
-			Memo:      tx.Tx.Body.Memo,
-			GasWanted: gasWanted,
-			GasUsed:   gasUsed,
-			Timestamp: tx.Time,
-			Logs:      tx.Logs,
+			Height:     height,
+			TxHash:     tx.TxHash,
+			Code:       tx.Code,
+			Memo:       txs.Txs[index].Body.Memo,
+			GasWanted:  gasWanted,
+			GasUsed:    gasUsed,
+			Timestamp:  tx.Time,
+			Logs:       tx.Logs,
+			Fee:        txs.Txs[index].AuthInfo.FeeInfo,
+			Signatures: txs.Txs[index].Signatures,
+			Messages:   txs.Txs[index].Body.BodyMessage,
 		}
 
 		transactions = append(transactions, &t)
