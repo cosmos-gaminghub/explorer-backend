@@ -177,18 +177,63 @@ func GetGovParams(govType string) (types.GovParam, error) {
 	return result, nil
 }
 
-// GetTokens returns information about existing tokens in active chain.
-// func (c Client) GetTokens(limit int, offset int) ([]*types.Token, error) {
-// 	resp, err := c.apiClient.R().Get("/tokens?limit=" + strconv.Itoa(limit) + "&offset=" + strconv.Itoa(offset))
-// 	if err != nil {
-// 		return nil, err
-// 	}
+func GetProposals() (types.ProposalResult, error) {
+	url := fmt.Sprintf(lcd.UrlProposal, conf.Get().Hub.LcdUrl)
+	resBytes, err := utils.Get(url)
+	if err != nil {
+		logger.Error("Get proposal error", logger.String("err", err.Error()))
+	}
 
-// 	var tokens []*types.Token
-// 	err = json.Unmarshal(resp.Body(), &tokens)
-// 	if err != nil {
-// 		return nil, err
-// 	}
+	var result types.ProposalResult
+	if err := json.Unmarshal(resBytes, &result); err != nil {
+		logger.Error("Unmarshal proposal error", logger.String("err", err.Error()))
+	}
 
-// 	return tokens, nil
-// }
+	return result, nil
+}
+
+func GetProposalDeposits(proposalId int) (types.ProposalDepositResult, error) {
+	url := fmt.Sprintf(lcd.UrlProposalDeposit, conf.Get().Hub.LcdUrl, proposalId)
+	resBytes, err := utils.Get(url)
+	if err != nil {
+		logger.Error("Get proposal depposit error", logger.String("err", err.Error()))
+	}
+
+	var result types.ProposalDepositResult
+	if err := json.Unmarshal(resBytes, &result); err != nil {
+		logger.Error("Unmarshal proposal depposit error", logger.String("err", err.Error()))
+	}
+
+	return result, nil
+}
+
+func GetProposalProposer(proposalId int) (types.ProposalProposerResult, error) {
+	url := fmt.Sprintf(lcd.UrlProposalProposer, conf.Get().Hub.LcdUrl, proposalId)
+	resBytes, err := utils.Get(url)
+	if err != nil {
+		logger.Error("Get proposal proposer error", logger.String("err", err.Error()))
+	}
+
+	fmt.Println(string(resBytes))
+	var result types.ProposalProposerResult
+	if err := json.Unmarshal(resBytes, &result); err != nil {
+		logger.Error("Unmarshal proposal proposer error", logger.String("err", err.Error()))
+	}
+
+	return result, nil
+}
+
+func GetProposalVotes(proposalId int) (types.ProposalVoteResult, error) {
+	url := fmt.Sprintf(lcd.UrlProposalDeposit, conf.Get().Hub.LcdUrl, proposalId)
+	resBytes, err := utils.Get(url)
+	if err != nil {
+		logger.Error("Get proposal votes error", logger.String("err", err.Error()))
+	}
+
+	var result types.ProposalVoteResult
+	if err := json.Unmarshal(resBytes, &result); err != nil {
+		logger.Error("Unmarshal proposal votes error", logger.String("err", err.Error()))
+	}
+
+	return result, nil
+}

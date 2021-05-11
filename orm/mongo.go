@@ -73,6 +73,22 @@ func Update(collectionname string, selecter, update interface{}) error {
 	return c.Update(selecter, update)
 }
 
+func Upsert(collectionname string, selector, update interface{}) (interface{}, error) {
+	db := GetDatabase()
+	defer db.Session.Close()
+
+	c := db.C(collectionname)
+	return c.Upsert(selector, update)
+}
+
+func RemoveAll(collectionname string, selector interface{}) (interface{}, error) {
+	db := GetDatabase()
+	defer db.Session.Close()
+
+	c := db.C(collectionname)
+	return c.RemoveAll(selector)
+}
+
 func (query *Query) GetDb() *mgo.Database {
 	return query.db
 }

@@ -9,6 +9,7 @@ import (
 	"github.com/cosmos-gaminghub/explorer-backend/logger"
 	"github.com/cosmos-gaminghub/explorer-backend/orm"
 	"github.com/cosmos-gaminghub/explorer-backend/orm/document"
+	"github.com/cosmos-gaminghub/explorer-backend/schema"
 	"github.com/pkg/errors"
 )
 
@@ -27,15 +28,27 @@ type Exporter struct {
 // Start starts to synchronize Binance Chain data.
 func Start() error {
 	fmt.Println("Starting Chain Exporter...")
+	// go func() {
+	// 	for {
+	// 		fmt.Println("start - sync blockchain")
+	// 		err := sync()
+	// 		if err != nil {
+	// 			fmt.Sprintf("error - sync blockchain: %v\n", err)
+	// 		}
+	// 		fmt.Println("finish - sync blockchain")
+	// 		time.Sleep(time.Second)
+	// 	}
+	// }()
+
 	go func() {
 		for {
-			fmt.Println("start - sync blockchain")
-			err := sync()
+			fmt.Println("start - sync proposal")
+			err := syncProposal()
 			if err != nil {
-				fmt.Sprintf("error - sync blockchain: %v\n", err)
+				fmt.Sprintf("error - sync proposal blockchain: %v\n", err)
 			}
-			fmt.Println("finish - sync blockchain")
-			time.Sleep(time.Second)
+			fmt.Println("finish - sync proposal blockchain")
+			time.Sleep(5 * time.Second)
 		}
 	}()
 
@@ -116,9 +129,7 @@ func process(height int64) error {
 	if err != nil {
 		return fmt.Errorf("failed to get txs: %s", err)
 	}
-	for _, txs := range resultTxs {
-		orm.Save("transaction", txs)
-	}
+	orm.Save("validator", resultTxs)
 
 	validatorSets, err := client.GetValidatorSet(height, 0)
 	if err != nil {
@@ -131,9 +142,7 @@ func process(height int64) error {
 	if err != nil {
 		return fmt.Errorf("failed to get validators: %s", err)
 	}
-	for _, validator := range resultValidators {
-		orm.Save("validator", validator)
-	}
+	orm.Save("validator", resultValidators)
 
 	// resultPreCommits, err := GetPreCommits(block.Block.LastCommit, valSet)
 	// if err != nil {
@@ -145,5 +154,43 @@ func process(height int64) error {
 	// 	return fmt.Errorf("failed to insert exporterd data: %s", err)
 	// }
 
+	return nil
+}
+
+func syncProposal() error {
+	proposals, err := client.GetProposals()
+	if err != nil {
+		return nil
+	}
+
+	resultProposals, err := GetProposals(proposals)
+	if err != nil {
+		return fmt.Errorf("failed to get validators: %s", err)
+	}
+	for _, proposal := range resultProposals {
+		err = processProposal(*proposal)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("synced proposal %d \n", proposal.ProposalId)
+	}
+
+	return nil
+}
+
+func processProposal(proposal schema.Proposal) error {
+	proposer, err := client.GetProposalProposer(proposal.ProposalId)
+	if err != nil {
+		logger.Fatal("Get proposal error")
+	}
+
+	proposal.Proposer = proposer.Result.Proposer
+	SaveProposal(proposal)
+
+	deposits, err := client.GetProposalDeposits(proposal.ProposalId)
+	if err != nil {
+		logger.Fatal("Get proposal deposit error")
+	}
+	orm.Save("deposits", deposits.Proposals)
 	return nil
 }

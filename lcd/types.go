@@ -45,6 +45,10 @@ const (
 	UrlProposalVoters                            = "%s/gov/proposals/%v/votes"
 	CommunityTaxAddr                             = "iaa18rtw90hxz4jsgydcusakz6q245jh59kfma3e5h"
 
+	UrlProposal         = "%s/cosmos/gov/v1beta1/proposals"
+	UrlProposalDeposit  = "%s/cosmos/gov/v1beta1/proposals/%d/deposits"
+	UrlProposalProposer = "%s/gov/proposals/%d/proposer"
+
 	DefaultValidatorSetLimit = 100
 	DefaultValidatorLimit    = 281
 )
@@ -731,4 +735,66 @@ type GovParam struct {
 		Threshold     string `json:"threshold"`
 		VetoThreshold string `json:"veto_threshold"`
 	} `json:"tally_params"`
+}
+
+type ProposalResult struct {
+	Proposals []Proposal `json:"proposals"`
+}
+
+type Proposal struct {
+	ProposalId       string                   `json:"proposal_id"`
+	Content          ProposalContent          `json:"content"`
+	Status           string                   `json:"status"`
+	FinalTallyResult ProposalFinalTallyResult `json:"final_tally_result"`
+	SubmitTime       time.Time                `json:"submit_time"`
+	DepositEndTime   time.Time                `json:"deposit_end_time"`
+	TotalDeposit     []struct {
+		Denom  string `json:"denom"`
+		Amount string `json:"amount"`
+	} `json:"total_deposit"`
+	VotingStartTime time.Time `json:"voting_start_time"`
+	VotingEndTime   time.Time `json:"voting_end_time"`
+}
+
+type ProposalContent struct {
+	Type        string `bson:"type" json:"@type"`
+	Title       string `bson:"title" json:"title"`
+	Description string `bson:"description" json:"description"`
+}
+
+type ProposalFinalTallyResult struct {
+	Yes        string `json:"yes"`
+	Abstain    string `json:"abstain"`
+	No         string `json:"no"`
+	NoWithVeto string `json:"no_with_veto"`
+}
+
+type ProposalDepositResult struct {
+	Proposals []ProposalDeposit `json:"deposits"`
+}
+
+type ProposalDeposit struct {
+	ProposalID string `json:"proposal_id"`
+	Depositor  string `json:"depositor"`
+	Amount     []struct {
+		Denom  string `json:"denom"`
+		Amount string `json:"amount"`
+	} `json:"amount"`
+}
+
+type ProposalVoteResult struct {
+	Votes []ProposalVote `json:"votes"`
+}
+
+type ProposalVote struct {
+	ProposalID string `json:"proposal_id"`
+	Voter      string `json:"voter"`
+	Option     string `json:"option"`
+}
+
+type ProposalProposerResult struct {
+	Result struct {
+		ProposalId string `json:"proposal_id"`
+		Proposer   string `json:"proposer"`
+	} `json:"result"`
 }
