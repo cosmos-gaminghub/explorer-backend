@@ -28,7 +28,6 @@ func GetProposals(ps types.ProposalResult) (proposals []*schema.Proposal, err er
 		}
 		pro := &schema.Proposal{
 			ProposalId:       proposalId,
-			Proposer:         "",
 			ProposalStatus:   proposal.Status,
 			Content:          proposal.Content,
 			SubmitTime:       proposal.SubmitTime,
@@ -41,7 +40,16 @@ func GetProposals(ps types.ProposalResult) (proposals []*schema.Proposal, err er
 
 	return proposals, nil
 }
+
 func SaveProposal(proposal schema.Proposal) (interface{}, error) {
 	selector := bson.M{"proposal_id": proposal.ProposalId}
 	return orm.Upsert("proposal", selector, proposal)
+}
+
+func GetDeposits(deposit types.ProposalDepositResult, proposal *schema.Proposal) (err error) {
+	for _, deposit := range deposit.Proposals {
+		proposal.Deposit = append(proposal.Deposit, deposit)
+	}
+
+	return nil
 }

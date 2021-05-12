@@ -41,13 +41,11 @@ const (
 	UrlLookupIconsByKeySuffix                    = "https://keybase.io/_/api/1.0/user/lookup.json?fields=pictures&key_suffix=%s"
 	UrlAssetTokens                               = "%s/asset/tokens"
 	UrlAssetGateways                             = "%s/asset/gateways"
-	UrlHtlcInfo                                  = "%s/htlc/htlcs/%s"
-	UrlProposalVoters                            = "%s/gov/proposals/%v/votes"
-	CommunityTaxAddr                             = "iaa18rtw90hxz4jsgydcusakz6q245jh59kfma3e5h"
 
 	UrlProposal         = "%s/cosmos/gov/v1beta1/proposals"
 	UrlProposalDeposit  = "%s/cosmos/gov/v1beta1/proposals/%d/deposits"
 	UrlProposalProposer = "%s/gov/proposals/%d/proposer"
+	UrlProposalVoters   = "%s/cosmos/gov/v1beta1/proposals/%d/votes?pagination.offset=%d"
 
 	DefaultValidatorSetLimit = 100
 	DefaultValidatorLimit    = 281
@@ -760,13 +758,18 @@ type ProposalContent struct {
 	Type        string `bson:"type" json:"@type"`
 	Title       string `bson:"title" json:"title"`
 	Description string `bson:"description" json:"description"`
+	Changes     []struct {
+		Key      string `json:"key"`
+		Value    string `json:"value"`
+		Subspace string `json:"subspace"`
+	}
 }
 
 type ProposalFinalTallyResult struct {
 	Yes        string `json:"yes"`
 	Abstain    string `json:"abstain"`
 	No         string `json:"no"`
-	NoWithVeto string `json:"no_with_veto"`
+	NoWithVeto string `bson:"no_with_veto" json:"no_with_veto"`
 }
 
 type ProposalDepositResult struct {
@@ -774,16 +777,24 @@ type ProposalDepositResult struct {
 }
 
 type ProposalDeposit struct {
-	ProposalID string `json:"proposal_id"`
-	Depositor  string `json:"depositor"`
-	Amount     []struct {
-		Denom  string `json:"denom"`
-		Amount string `json:"amount"`
-	} `json:"amount"`
+	ProposalID string                  `bson:"proposal_id" json:"proposal_id"`
+	Depositor  string                  `json:"depositor"`
+	Amount     []ProposalDepositAmount `json:"amount"`
+}
+
+type ProposalDepositAmount struct {
+	Denom  string `json:"denom"`
+	Amount string `json:"amount"`
 }
 
 type ProposalVoteResult struct {
-	Votes []ProposalVote `json:"votes"`
+	Votes      []ProposalVote `json:"votes"`
+	Pagination Pagination     `json:"pagination"`
+}
+
+type Pagination struct {
+	NextKey string `json:"next_key"`
+	Total   string `json:"total"`
 }
 
 type ProposalVote struct {

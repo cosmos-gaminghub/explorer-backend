@@ -3,6 +3,7 @@ package client
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 
 	"github.com/cosmos-gaminghub/explorer-backend/conf"
 	"github.com/cosmos-gaminghub/explorer-backend/lcd"
@@ -77,7 +78,7 @@ func GetValidatorSet(height int64, offset int64) ([]types.ValidatorOfValidatorSe
 	validators = append(validators, result.Validators...)
 
 	if len(validators) == lcd.DefaultValidatorSetLimit {
-		valSet, _ := GetValidatorSet(height, lcd.DefaultValidatorSetLimit)
+		valSet, _ := GetValidatorSet(height, offset+lcd.DefaultValidatorSetLimit)
 		validators = append(validators, valSet...)
 	}
 
@@ -223,17 +224,26 @@ func GetProposalProposer(proposalId int) (types.ProposalProposerResult, error) {
 	return result, nil
 }
 
-func GetProposalVotes(proposalId int) (types.ProposalVoteResult, error) {
-	url := fmt.Sprintf(lcd.UrlProposalDeposit, conf.Get().Hub.LcdUrl, proposalId)
+func GetProposalVotes(proposalId int, offset int) ([]types.ProposalVote, error) {
+	url := fmt.Sprintf(lcd.UrlProposalVoters, conf.Get().Hub.LcdUrl, proposalId, offset)
 	resBytes, err := utils.Get(url)
 	if err != nil {
 		logger.Error("Get proposal votes error", logger.String("err", err.Error()))
 	}
 
 	var result types.ProposalVoteResult
+
 	if err := json.Unmarshal(resBytes, &result); err != nil {
 		logger.Error("Unmarshal proposal votes error", logger.String("err", err.Error()))
 	}
+	total, _ := strconv.Atoi(result.Pagination.Total)
+	votes := make([]types.ProposalVote, 0, total)
+	votes = append(votes, result.Votes...)
 
-	return result, nil
+	if len(votes) == lcd.DefaultValidatorSetLimit {
+		vs, _ := GetProposalVotes(proposalId, offset+lcd.DefaultValidatorSetLimit)
+		votes = append(votes, vs...)
+	}
+
+	return votes, nil
 }

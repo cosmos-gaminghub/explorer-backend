@@ -28,17 +28,17 @@ type Exporter struct {
 // Start starts to synchronize Binance Chain data.
 func Start() error {
 	fmt.Println("Starting Chain Exporter...")
-	// go func() {
-	// 	for {
-	// 		fmt.Println("start - sync blockchain")
-	// 		err := sync()
-	// 		if err != nil {
-	// 			fmt.Sprintf("error - sync blockchain: %v\n", err)
-	// 		}
-	// 		fmt.Println("finish - sync blockchain")
-	// 		time.Sleep(time.Second)
-	// 	}
-	// }()
+	go func() {
+		for {
+			fmt.Println("start - sync blockchain")
+			err := sync()
+			if err != nil {
+				fmt.Sprintf("error - sync blockchain: %v\n", err)
+			}
+			fmt.Println("finish - sync blockchain")
+			time.Sleep(time.Second)
+		}
+	}()
 
 	go func() {
 		for {
@@ -179,6 +179,17 @@ func syncProposal() error {
 }
 
 func processProposal(proposal schema.Proposal) error {
+	deposits, _ := client.GetProposalDeposits(proposal.ProposalId)
+	if len(deposits.Proposals) > 0 {
+		GetDeposits(deposits, &proposal)
+	}
+
+	votes, _ := client.GetProposalVotes(proposal.ProposalId, 0)
+	if len(votes) > 0 {
+		fmt.Print("jkdfhgjdfghdfjk")
+		proposal.Vote = votes
+	}
+
 	proposer, err := client.GetProposalProposer(proposal.ProposalId)
 	if err != nil {
 		logger.Fatal("Get proposal error")
@@ -187,10 +198,5 @@ func processProposal(proposal schema.Proposal) error {
 	proposal.Proposer = proposer.Result.Proposer
 	SaveProposal(proposal)
 
-	deposits, err := client.GetProposalDeposits(proposal.ProposalId)
-	if err != nil {
-		logger.Fatal("Get proposal deposit error")
-	}
-	orm.Save("deposits", deposits.Proposals)
 	return nil
 }

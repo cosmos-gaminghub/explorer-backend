@@ -2,9 +2,6 @@ package document
 
 import (
 	"time"
-
-	"github.com/cosmos-gaminghub/explorer-backend/orm"
-	"gopkg.in/mgo.v2/bson"
 )
 
 const (
@@ -22,12 +19,20 @@ type Proposal struct {
 	FinalTallyResult FinalTallyResult `bson:"final_tally_result" json:"final_tally_result"`
 	VotingEndTime    time.Time        `bson:"voting_end_time"`
 	VotingStartTime  time.Time        `bson:"voting_start_time"`
+	Proposer         string           `bson:"proposer"`
+	Deposit          []Deposit        `bson:"deposit"`
+	Vote             []ProposalVote   `bson:"vote"`
 }
 
 type Content struct {
 	Type        string `bson:"type"`
 	Title       string `bson:"title"`
 	Description string `bson:"description"`
+	Changes     []struct {
+		Key      string `bson:"key"`
+		Value    string `bson:"value"`
+		Subspace string `bson:"subspace"`
+	}
 }
 
 type FinalTallyResult struct {
@@ -37,20 +42,19 @@ type FinalTallyResult struct {
 	NoWithVeto string `bson:"no_with_veto"`
 }
 
-func (_ Proposal) GetAllProposalId() (map[int]int, error) {
-	var proposals []Proposal
-	var selector = bson.M{ProposalFieldProposalId: 1}
-	var query = orm.NewQuery()
-	defer query.Release()
-	query.SetCollection(CollectionProposal).
-		SetSelector(selector).
-		SetResult(&proposals)
+type Deposit struct {
+	ProposalID int      `bson:"proposal_id"`
+	Depositor  string   `bson:"depositor"`
+	Amount     []Amount `bson:"amount"`
+}
 
-	err := query.Exec()
+type ProposalVote struct {
+	ProposalId string `bson:"proposal_id"`
+	Voter      string `bson:"voter"`
+	Option     string `bson:"option"`
+}
 
-	var listProposalId map[int]int
-	for _, proposal := range proposals {
-		listProposalId[proposal.ProposalId] = proposal.ProposalId
-	}
-	return listProposalId, err
+type Amount struct {
+	Denom  string `bson:"denom"`
+	Amount string `bson:"amount"`
 }
