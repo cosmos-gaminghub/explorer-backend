@@ -1,29 +1,27 @@
 # Nibiru Explorer Backend
-Blockchain explorer for the Cosmos Gaming Hub Node([nibiru](https://github.com/cosmos-gaminghub/nibiru))
+Blockchain explorer for the Cosmos Gaming Hub Node ([nibiru](https://github.com/cosmos-gaminghub/nibiru))
 
 **Prerequisites**
 * go1.16.0+
+* docker (for local usage)
 
-### Install
+## Get Started
 
 ```bash
 git clone https://github.com/cosmos-gaminghub/explorer-backend.git
 make all
+./build/explorer
+
 ```
 
 ### Start in local
-**Prerequisites**
-* docker
 
 ```bash
 docker run -p 27017:27017 --name dev-mongo mongo
-```
-
-```bash
 ./build/explorer
 ```
 
-##### 3 Setting environment variables
+## Setting environment variables
 
 ```
     DB_ADDR          : mongo server's address
