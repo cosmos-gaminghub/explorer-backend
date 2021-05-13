@@ -6,7 +6,5 @@ get_deps:
 	go mod vendor
 
 build:
-	go build -o build/irisplorer explorer.go
-
-irisplorer:
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o build/irisplorer explorer.go
+	rm -rf ./build
+	go build -o build/explorer explorer.go
