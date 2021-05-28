@@ -129,7 +129,9 @@ func process(height int64) error {
 	if err != nil {
 		return fmt.Errorf("failed to get txs: %s", err)
 	}
-	orm.Save("validator", resultTxs)
+	for _, item := range resultTxs {
+		orm.Save("txs", item)
+	}
 
 	validatorSets, err := client.GetValidatorSet(height, 0)
 	if err != nil {
@@ -142,7 +144,9 @@ func process(height int64) error {
 	if err != nil {
 		return fmt.Errorf("failed to get validators: %s", err)
 	}
-	orm.Save("validator", resultValidators)
+	for _, item := range resultValidators {
+		orm.Save("validator", item)
+	}
 
 	// resultPreCommits, err := GetPreCommits(block.Block.LastCommit, valSet)
 	// if err != nil {
@@ -186,7 +190,6 @@ func processProposal(proposal schema.Proposal) error {
 
 	votes, _ := client.GetProposalVotes(proposal.ProposalId, 0)
 	if len(votes) > 0 {
-		fmt.Print("jkdfhgjdfghdfjk")
 		proposal.Vote = votes
 	}
 
