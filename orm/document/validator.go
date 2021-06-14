@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	types "github.com/cosmos-gaminghub/explorer-backend/lcd"
 	"github.com/cosmos-gaminghub/explorer-backend/logger"
 	"github.com/cosmos-gaminghub/explorer-backend/orm"
 	"gopkg.in/mgo.v2/bson"
@@ -79,6 +80,20 @@ type (
 )
 
 type Validator struct {
+	OperatorAddr    string            `json:"operator_address"`
+	ConsensusPubkey string            `json:"consensus_pubkey"`
+	ConsensusAddres string            `json:"consensus_address"`
+	AccountAddr     string            `json:"account_address"`
+	Jailed          bool              `json:"jailed"`
+	Status          string            `json:"status"`
+	Tokens          int64             `json:"tokens"`
+	DelegatorShares string            `json:"delegator_shares"`
+	Description     types.Description `json:"description"`
+	UnbondingHeight string            `json:"unbonding_height"`
+	UnbondingTime   time.Time         `json:"unbonding_time"`
+	Commission      types.Commission  `json:"commission"`
+	ProposerAddr    string            `json:"proposer_addr"`
+	Icons           string            `json:"icons"`
 }
 
 func (v Validator) GetValidatorList() ([]Validator, error) {
@@ -391,10 +406,13 @@ func getValUpTime(query *orm.Query) map[string]int {
 }
 
 // update document by primary key
-// func (_ Validator) UpdateByPk(validator Validator) error {
-// 	db := orm.GetDatabase()
-// 	defer db.Session.Close()
+func (_ Validator) UpdateByOperatorAddress(validator Validator) error {
+	db := orm.GetDatabase()
+	defer db.Session.Close()
 
-// 	c := db.C(CollectionNmValidator)
-// 	return c.Update(validator.PkKvPair(), validator)
-// }
+	selector := bson.M{
+		ValidatorFieldOperatorAddress: validator.OperatorAddr,
+	}
+	c := db.C(CollectionNmValidator)
+	return c.Update(selector, validator)
+}

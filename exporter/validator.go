@@ -16,9 +16,13 @@ func GetValidators(vals types.ValidatorsResult, validatorSets []types.ValidatorO
 	validatorSetsFormat := client.FormatValidatorSetPubkeyToAddress(validatorSets)
 	for _, validator := range vals.Validators {
 
-		_, err := document.Validator{}.QueryValidatorDetailByOperatorAddr(validator.OperatorAddress)
+		validatorFromDb, err := document.Validator{}.QueryValidatorDetailByOperatorAddr(validator.OperatorAddress)
 		if err == nil {
 			return nil, fmt.Errorf("unexpected error when checking validator existence: %s", err)
+		}
+		if validatorFromDb != (document.Validator{}) {
+			document.Validator{}.UpdateByOperatorAddress(validatorFromDb)
+			continue
 		}
 		tokens, _ := utils.ParseInt(validator.Tokens)
 		var consensusAddress string
