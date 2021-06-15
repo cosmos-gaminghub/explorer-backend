@@ -48,7 +48,7 @@ func Start() error {
 				fmt.Sprintf("error - sync proposal blockchain: %v\n", err)
 			}
 			fmt.Println("finish - sync proposal blockchain")
-			time.Sleep(5 * time.Second)
+			time.Sleep(60 * time.Second)
 		}
 	}()
 
