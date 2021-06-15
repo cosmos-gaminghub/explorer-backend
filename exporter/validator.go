@@ -1,6 +1,7 @@
 package exporter
 
 import (
+	"encoding/base64"
 	"fmt"
 
 	"github.com/cosmos-gaminghub/explorer-backend/client"
@@ -9,6 +10,7 @@ import (
 	"github.com/cosmos-gaminghub/explorer-backend/orm/document"
 	"github.com/cosmos-gaminghub/explorer-backend/schema"
 	"github.com/cosmos-gaminghub/explorer-backend/utils"
+	"github.com/cosmos/cosmos-sdk/types/bech32"
 )
 
 // getValidators parses validators information and wrap into Precommit schema struct
@@ -29,6 +31,8 @@ func GetValidators(vals types.ValidatorsResult, validatorSets []types.ValidatorO
 		if val, ok := validatorSetsFormat[validator.ConsensusPubkey.Key]; ok {
 			consensusAddress = val
 		}
+		_, decodeByte, err := bech32.DecodeAndConvert(consensusAddress)
+		str := base64.StdEncoding.EncodeToString(decodeByte)
 		val := &schema.Validator{
 			OperatorAddr:    validator.OperatorAddress,
 			ConsensusAddres: consensusAddress,
@@ -42,6 +46,7 @@ func GetValidators(vals types.ValidatorsResult, validatorSets []types.ValidatorO
 			UnbondingHeight: validator.UnbondingHeight,
 			UnbondingTime:   validator.UnbondingTime,
 			Commission:      validator.Commission,
+			ProposerAddr:    str,
 		}
 		validators = append(validators, val)
 	}
