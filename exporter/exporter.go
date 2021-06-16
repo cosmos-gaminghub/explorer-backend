@@ -48,7 +48,7 @@ func Start() error {
 				fmt.Sprintf("error - sync proposal blockchain: %v\n", err)
 			}
 			fmt.Println("finish - sync proposal blockchain")
-			time.Sleep(60 * time.Second)
+			time.Sleep(3600 * time.Second)
 		}
 	}()
 
@@ -125,7 +125,7 @@ func process(height int64) error {
 	}
 	orm.Save("block", resultBlock)
 
-	resultTxs, err := GetTxs(txs)
+	resultTxs, err := GetTxs(txs, *resultBlock)
 	if err != nil {
 		return fmt.Errorf("failed to get txs: %s", err)
 	}

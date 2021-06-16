@@ -1,7 +1,6 @@
 package exporter
 
 import (
-	"fmt"
 	"strconv"
 
 	types "github.com/cosmos-gaminghub/explorer-backend/lcd"
@@ -9,14 +8,13 @@ import (
 )
 
 // getTxs parses transactions in a block and return transactions.
-func GetTxs(txs types.TxResult) (transactions []*schema.Transaction, err error) {
+func GetTxs(txs types.TxResult, block schema.Block) (transactions []*schema.Transaction, err error) {
 
 	if len(txs.TxResponse) <= 0 {
 		return []*schema.Transaction{}, nil
 	}
 
 	for index, tx := range txs.TxResponse {
-		fmt.Println(tx)
 		// var stdTx txtypes.StdTx
 		// err = ex.cdc.UnmarshalBinaryLengthPrefixed([]byte(tx.Tx), &stdTx)
 		// if err != nil {
@@ -71,7 +69,7 @@ func GetTxs(txs types.TxResult) (transactions []*schema.Transaction, err error) 
 			Memo:       txs.Txs[index].Body.Memo,
 			GasWanted:  gasWanted,
 			GasUsed:    gasUsed,
-			Timestamp:  tx.Time,
+			Timestamp:  block.Timestamp.String(),
 			Logs:       tx.Logs,
 			Fee:        txs.Txs[index].AuthInfo.FeeInfo,
 			Signatures: txs.Txs[index].Signatures,
