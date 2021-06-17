@@ -145,7 +145,7 @@ func process(height int64) error {
 		return fmt.Errorf("failed to get validators: %s", err)
 	}
 	for _, item := range resultValidators {
-		orm.Save("validator", item)
+		SaveValidator(*item)
 	}
 
 	// resultPreCommits, err := GetPreCommits(block.Block.LastCommit, valSet)

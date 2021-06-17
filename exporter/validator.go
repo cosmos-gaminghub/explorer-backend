@@ -7,10 +7,12 @@ import (
 	"github.com/cosmos-gaminghub/explorer-backend/client"
 	"github.com/cosmos-gaminghub/explorer-backend/conf"
 	types "github.com/cosmos-gaminghub/explorer-backend/lcd"
+	"github.com/cosmos-gaminghub/explorer-backend/orm"
 	"github.com/cosmos-gaminghub/explorer-backend/orm/document"
 	"github.com/cosmos-gaminghub/explorer-backend/schema"
 	"github.com/cosmos-gaminghub/explorer-backend/utils"
 	"github.com/cosmos/cosmos-sdk/types/bech32"
+	"gopkg.in/mgo.v2/bson"
 )
 
 // getValidators parses validators information and wrap into Precommit schema struct
@@ -18,20 +20,16 @@ func GetValidators(vals types.ValidatorsResult, validatorSets []types.ValidatorO
 	validatorSetsFormat := client.FormatValidatorSetPubkeyToAddress(validatorSets)
 	for _, validator := range vals.Validators {
 
-		validatorFromDb, err := document.Validator{}.QueryValidatorDetailByOperatorAddr(validator.OperatorAddress)
-		if err == nil {
+		_, err := document.Validator{}.QueryValidatorDetailByOperatorAddr(validator.OperatorAddress)
+		if err != nil {
 			return nil, fmt.Errorf("unexpected error when checking validator existence: %s", err)
-		}
-		if validatorFromDb != (document.Validator{}) {
-			document.Validator{}.UpdateByOperatorAddress(validatorFromDb)
-			continue
 		}
 		tokens, _ := utils.ParseInt(validator.Tokens)
 		var consensusAddress string
 		if val, ok := validatorSetsFormat[validator.ConsensusPubkey.Key]; ok {
 			consensusAddress = val
 		}
-		_, decodeByte, err := bech32.DecodeAndConvert(consensusAddress)
+		_, decodeByte, _ := bech32.DecodeAndConvert(consensusAddress)
 		str := base64.StdEncoding.EncodeToString(decodeByte)
 		val := &schema.Validator{
 			OperatorAddr:    validator.OperatorAddress,
@@ -52,4 +50,10 @@ func GetValidators(vals types.ValidatorsResult, validatorSets []types.ValidatorO
 	}
 
 	return validators, nil
+}
+
+func SaveValidator(validator schema.Validator) (interface{}, error) {
+	selector := bson.M{document.ValidatorFieldOperatorAddress: validator.OperatorAddr}
+
+	return orm.Upsert(document.CollectionNmValidator, selector, validator)
 }
