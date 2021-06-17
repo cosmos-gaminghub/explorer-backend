@@ -24,6 +24,7 @@ const (
 	ValidatorFieldTokens           = "tokens"
 	ValidatorFieldDelegatorShares  = "delegator_shares"
 	ValidatorFieldIcon             = "icons"
+	ValidatorFieldComission        = "commission"
 	ValidatorStatusValUnbonded     = 0
 	ValidatorStatusValUnbonding    = 1
 	ValidatorStatusValBonded       = 2
@@ -403,16 +404,4 @@ func getValUpTime(query *orm.Query) map[string]int {
 		}
 	}
 	return upTimeMap
-}
-
-// update document by primary key
-func (_ Validator) UpdateByOperatorAddress(validator Validator) error {
-	db := orm.GetDatabase()
-	defer db.Session.Close()
-
-	selector := bson.M{
-		ValidatorFieldOperatorAddress: validator.OperatorAddr,
-	}
-	c := db.C(CollectionNmValidator)
-	return c.Update(selector, validator)
 }
