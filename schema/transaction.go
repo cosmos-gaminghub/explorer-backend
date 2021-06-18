@@ -1,6 +1,8 @@
 package schema
 
 import (
+	"time"
+
 	types "github.com/cosmos-gaminghub/explorer-backend/lcd"
 )
 
@@ -12,7 +14,7 @@ type Transaction struct {
 	Memo       string              `bson:"memo"`
 	GasWanted  int64               `bson:"gas_wanted"`
 	GasUsed    int64               `bson:"gas_used"`
-	Timestamp  string              `bson:"timestamp"`
+	Timestamp  time.Time           `bson:"timestamp"`
 	Logs       []types.Log         `bson:"logs" json:"logs"`
 	Signatures []string            `bson:"signatures" json:"signatures"`
 	Messages   []types.BodyMessage `bson:"messages" json:"messages"`

@@ -69,7 +69,7 @@ func GetTxs(txs types.TxResult, block schema.Block) (transactions []*schema.Tran
 			Memo:       txs.Txs[index].Body.Memo,
 			GasWanted:  gasWanted,
 			GasUsed:    gasUsed,
-			Timestamp:  block.Timestamp.String(),
+			Timestamp:  block.Timestamp,
 			Logs:       tx.Logs,
 			Fee:        txs.Txs[index].AuthInfo.FeeInfo,
 			Signatures: txs.Txs[index].Signatures,
