@@ -100,12 +100,12 @@ func sync() error {
 func process(height int64) error {
 	block, err := client.GetBlock(height)
 	if err != nil {
-		return fmt.Errorf("failed to query block using rpc client: %s", err)
+		logger.Error("failed to query block using rpc client:", logger.String("err", err.Error()))
 	}
 
 	txs, err := client.GetTxs(height)
 	if err != nil {
-		return fmt.Errorf("failed to get transactions: %s", err)
+		logger.Error("failed to get transactions:", logger.String("err", err.Error()))
 	}
 	// lastCommitHeight, err := strconv.ParseInt(block.Block.LastCommit.Height, 10, 64)
 	// valSet, err := client.GetValidatorSet(lastCommitHeight)
@@ -115,34 +115,34 @@ func process(height int64) error {
 
 	vals, err := client.GetValidators()
 	if err != nil {
-		return fmt.Errorf("failed to query validators using rpc client: %s", err)
+		logger.Error("failed to query validators using rpc client:", logger.String("err", err.Error()))
 	}
 
 	// TODO: Reward Fees Calculation
 	resultBlock, err := GetBlock(block)
 	if err != nil {
-		return fmt.Errorf("failed to get block: %s", err)
+		logger.Error("failed to get block:", logger.String("err", err.Error()))
 	}
-	orm.Save("block", resultBlock)
+	orm.Save(document.CollectionNmBlock, resultBlock)
 
 	resultTxs, err := GetTxs(txs, *resultBlock)
 	if err != nil {
-		return fmt.Errorf("failed to get txs: %s", err)
+		logger.Error("failed to get txs:", logger.String("err", err.Error()))
 	}
 	for _, item := range resultTxs {
-		orm.Save("txs", item)
+		orm.Save(document.CollectionNmCommonTx, item)
 	}
 
 	validatorSets, err := client.GetValidatorSet(height, 0)
 	if err != nil {
-		return fmt.Errorf("failed to get txs: %s", err)
+		logger.Error("failed to get validator set:", logger.String("err", err.Error()))
 	}
 
 	SaveMissedBlock(vals, validatorSets, block)
 
 	resultValidators, err := GetValidators(vals, validatorSets)
 	if err != nil {
-		return fmt.Errorf("failed to get validators: %s", err)
+		logger.Error("failed to get validators:", logger.String("err", err.Error()))
 	}
 	for _, item := range resultValidators {
 		SaveValidator(*item)

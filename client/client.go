@@ -46,19 +46,29 @@ func GetLatestBlockHeight() (int64, error) {
 
 // GetTxs queries for all the transactions in a block height.
 // It uses `Tx` RPC method to query for the transaction.
-func GetTxs(height int64) (types.TxResult, error) {
+func GetTxs(height int64) (txs types.TxResult, err error) {
 	url := fmt.Sprintf(lcd.UrlTxsTxHeight, conf.Get().Hub.LcdUrl, height)
 	resBytes, err := utils.Get(url)
 	if err != nil {
-		logger.Error("get Tx error", logger.String("err", err.Error()))
+		logger.Error(fmt.Sprintf("get Tx error for height %d", height), logger.String("err", err.Error()))
+		return txs, err
 	}
 
-	var result types.TxResult
-	if err := json.Unmarshal(resBytes, &result); err != nil {
-		logger.Error("Unmarshal Tx error", logger.String("err", err.Error()))
+	result := make(map[string][]map[string]map[string]interface{})
+	json.Unmarshal(resBytes, &result)
+
+	if err := json.Unmarshal(resBytes, &txs); err != nil {
+		logger.Error(fmt.Sprintf("Unmarshal Tx error for height %d", height), logger.String("err", err.Error()))
 	}
 
-	return result, nil
+	if len(txs.TxResponse) > 0 {
+		for index, _ := range txs.TxResponse {
+			mJson, _ := json.Marshal(result["txs"][index]["body"]["messages"])
+			txs.Txs[index].Body.BodyMessage = string(mJson)
+		}
+	}
+
+	return txs, nil
 }
 
 // GetValidatorSet returns all the known Tendermint validators for a given block
@@ -67,13 +77,14 @@ func GetValidatorSet(height int64, offset int64) ([]types.ValidatorOfValidatorSe
 	url := fmt.Sprintf(lcd.UrlValidatorSet, conf.Get().Hub.LcdUrl, height, offset)
 	resBytes, err := utils.Get(url)
 	if err != nil {
-		logger.Error("Get validator set error", logger.String("err", err.Error()))
+		logger.Error(fmt.Sprintf("Get validator set error for height %d", height), logger.String("err", err.Error()))
+		return []types.ValidatorOfValidatorSet{}, err
 	}
 
 	var result types.ValidatorSet
 	validators := make([]types.ValidatorOfValidatorSet, 0, 125)
 	if err := json.Unmarshal(resBytes, &result); err != nil {
-		logger.Error("Unmarshal validator set error", logger.String("err", err.Error()))
+		logger.Error(fmt.Sprintf("Unmarshal validator set error for height %d", height), logger.String("err", err.Error()))
 	}
 	validators = append(validators, result.Validators...)
 

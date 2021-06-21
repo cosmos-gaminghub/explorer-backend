@@ -655,8 +655,8 @@ type TxResult struct {
 	Txs []struct {
 		AuthInfo TxAuthInfo `json:"auth_info"`
 		Body     struct {
-			BodyMessage []BodyMessage `json:"messages"`
-			Memo        string        `json:"memo"`
+			BodyMessage string `json:"messages"`
+			Memo        string `json:"memo"`
 		} `json:"body"`
 		Signatures []string `json:"signatures"`
 	} `json:"txs"`
