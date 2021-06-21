@@ -8,17 +8,17 @@ import (
 
 // Transaction defines the structure for transaction information.
 type Transaction struct {
-	Height     int64               `bson:"height"`
-	TxHash     string              `bson:"txhash"`
-	Code       uint32              `bson:"code"`
-	Memo       string              `bson:"memo"`
-	GasWanted  int64               `bson:"gas_wanted"`
-	GasUsed    int64               `bson:"gas_used"`
-	Timestamp  time.Time           `bson:"timestamp"`
-	Logs       []types.Log         `bson:"logs" json:"logs"`
-	Signatures []string            `bson:"signatures" json:"signatures"`
-	Messages   []types.BodyMessage `bson:"messages" json:"messages"`
-	Fee        types.Fee           `bson:"fee" json:"fee"`
+	Height     int64       `bson:"height"`
+	TxHash     string      `bson:"txhash"`
+	Code       uint32      `bson:"code"`
+	Memo       string      `bson:"memo"`
+	GasWanted  int64       `bson:"gas_wanted"`
+	GasUsed    int64       `bson:"gas_used"`
+	Timestamp  time.Time   `bson:"timestamp"`
+	Logs       []types.Log `bson:"logs" json:"logs"`
+	Signatures []string    `bson:"signatures" json:"signatures"`
+	Messages   string      `bson:"messages"`
+	Fee        types.Fee   `bson:"fee" json:"fee"`
 }
 
 // NewTransaction returns a new Transaction.
