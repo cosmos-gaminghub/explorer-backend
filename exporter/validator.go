@@ -2,7 +2,6 @@ package exporter
 
 import (
 	"encoding/base64"
-	"fmt"
 
 	"github.com/cosmos-gaminghub/explorer-backend/client"
 	"github.com/cosmos-gaminghub/explorer-backend/conf"
@@ -19,11 +18,6 @@ import (
 func GetValidators(vals types.ValidatorsResult, validatorSets []types.ValidatorOfValidatorSet) (validators []*schema.Validator, err error) {
 	validatorSetsFormat := client.FormatValidatorSetPubkeyToAddress(validatorSets)
 	for _, validator := range vals.Validators {
-
-		_, err := document.Validator{}.QueryValidatorDetailByOperatorAddr(validator.OperatorAddress)
-		if err != nil {
-			return nil, fmt.Errorf("unexpected error when checking validator existence: %s", err)
-		}
 		tokens, _ := utils.ParseInt(validator.Tokens)
 		var consensusAddress string
 		if val, ok := validatorSetsFormat[validator.ConsensusPubkey.Key]; ok {

@@ -16,8 +16,6 @@ type Proposal struct {
 	FinalTallyResult types.ProposalFinalTallyResult `bson:"final_tally_result" json:"final_tally_result"`
 	VotingEndTime    time.Time                      `bson:"voting_end_time"`
 	VotingStartTime  time.Time                      `bson:"voting_start_time"`
-	Deposit          []types.ProposalDeposit        `bson:"deposit"`
-	Vote             []types.ProposalVote           `bson:"vote"`
 }
 
 // NewTransaction returns a new Transaction.
@@ -31,7 +29,5 @@ func NewProposal(t Proposal) *Proposal {
 		FinalTallyResult: t.FinalTallyResult,
 		VotingEndTime:    t.VotingEndTime,
 		VotingStartTime:  t.VotingStartTime,
-		Deposit:          t.Deposit,
-		Vote:             t.Vote,
 	}
 }
