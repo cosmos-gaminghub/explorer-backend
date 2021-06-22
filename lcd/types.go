@@ -773,11 +773,11 @@ type ProposalFinalTallyResult struct {
 }
 
 type ProposalDepositResult struct {
-	Proposals []ProposalDeposit `json:"deposits"`
+	Deposits []ProposalDeposit `json:"deposits"`
 }
 
 type ProposalDeposit struct {
-	ProposalID string                  `bson:"proposal_id" json:"proposal_id"`
+	ProposalId string                  `bson:"proposal_id" json:"proposal_id"`
 	Depositor  string                  `json:"depositor"`
 	Amount     []ProposalDepositAmount `json:"amount"`
 }
@@ -798,7 +798,7 @@ type Pagination struct {
 }
 
 type ProposalVote struct {
-	ProposalID string `json:"proposal_id"`
+	ProposalId string `json:"proposal_id"`
 	Voter      string `json:"voter"`
 	Option     string `json:"option"`
 }

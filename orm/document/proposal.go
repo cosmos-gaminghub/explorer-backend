@@ -20,8 +20,6 @@ type Proposal struct {
 	VotingEndTime    time.Time        `bson:"voting_end_time"`
 	VotingStartTime  time.Time        `bson:"voting_start_time"`
 	Proposer         string           `bson:"proposer"`
-	Deposit          []Deposit        `bson:"deposit"`
-	Vote             []ProposalVote   `bson:"vote"`
 }
 
 type Content struct {
@@ -40,21 +38,4 @@ type FinalTallyResult struct {
 	Abstain    string `bson:"abstain"`
 	No         string `bson:"no"`
 	NoWithVeto string `bson:"no_with_veto"`
-}
-
-type Deposit struct {
-	ProposalID int      `bson:"proposal_id"`
-	Depositor  string   `bson:"depositor"`
-	Amount     []Amount `bson:"amount"`
-}
-
-type ProposalVote struct {
-	ProposalId string `bson:"proposal_id"`
-	Voter      string `bson:"voter"`
-	Option     string `bson:"option"`
-}
-
-type Amount struct {
-	Denom  string `bson:"denom"`
-	Amount string `bson:"amount"`
 }

@@ -183,14 +183,27 @@ func syncProposal() error {
 }
 
 func processProposal(proposal schema.Proposal) error {
-	deposits, _ := client.GetProposalDeposits(proposal.ProposalId)
-	if len(deposits.Proposals) > 0 {
-		GetDeposits(deposits, &proposal)
+	depositResult, _ := client.GetProposalDeposits(proposal.ProposalId)
+	if len(depositResult.Deposits) > 0 {
+		deposits, err := GetDeposits(depositResult)
+		if err != nil {
+			logger.Error("failed to get deposits:", logger.String("err", err.Error()))
+		}
+		for _, item := range deposits {
+			orm.Save(document.CollectionDeposit, item)
+		}
 	}
 
-	votes, _ := client.GetProposalVotes(proposal.ProposalId, 0)
-	if len(votes) > 0 {
-		proposal.Vote = votes
+	voteResult, _ := client.GetProposalVotes(proposal.ProposalId, 0)
+	if len(voteResult) > 0 {
+		votes, err := GetVote(voteResult)
+
+		if err != nil {
+			logger.Error("failed to get votes:", logger.String("err", err.Error()))
+		}
+		for _, item := range votes {
+			orm.Save(document.CollectionVote, item)
+		}
 	}
 
 	proposer, err := client.GetProposalProposer(proposal.ProposalId)

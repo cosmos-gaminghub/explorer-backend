@@ -216,18 +216,6 @@ type Commit struct {
 	Precommits []Vote  `bson:"precommits"`
 }
 
-// Represents a prevote, precommit, or commit vote from validators for consensus.
-type Vote struct {
-	ValidatorAddress string    `bson:"validator_address"`
-	ValidatorIndex   int       `bson:"validator_index"`
-	Height           int64     `bson:"height"`
-	Round            int       `bson:"round"`
-	Timestamp        time.Time `bson:"timestamp"`
-	Type             byte      `bson:"type"`
-	BlockID          BlockID   `bson:"block_id"` // zero if vote is nil.
-	Signature        Signature `bson:"signature"`
-}
-
 type Signature struct {
 	Type  string `bson:"type"`
 	Value string `bson:"value"`

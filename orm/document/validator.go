@@ -5,7 +5,6 @@ import (
 	"time"
 
 	types "github.com/cosmos-gaminghub/explorer-backend/lcd"
-	"github.com/cosmos-gaminghub/explorer-backend/logger"
 	"github.com/cosmos-gaminghub/explorer-backend/orm"
 	"gopkg.in/mgo.v2/bson"
 	"gopkg.in/mgo.v2/txn"
@@ -180,83 +179,6 @@ func (v Validator) QueryValidatorMonikerOpAddrByHashAddr(hashAddr []string) ([]V
 	return validators, err
 }
 
-// func (_ Validator) GetValidatorListByPage(typ string, page, size int, ispage, total bool) (int, []Validator, error) {
-
-// 	var query = orm.NewQuery()
-// 	defer query.Release()
-// 	var validators []Validator
-// 	condition := bson.M{}
-// 	switch typ {
-// 	case types.RoleValidator:
-// 		condition[ValidatorFieldJailed] = false
-// 		condition[ValidatorFieldStatus] = types.Bonded
-// 		break
-// 	case types.RoleCandidate:
-// 		condition[ValidatorFieldJailed] = false
-// 		condition[ValidatorFieldStatus] = bson.M{
-// 			"$in": []int{types.Unbonded, types.Unbonding},
-// 		}
-// 		break
-// 	case types.RoleJailed:
-// 		condition[ValidatorFieldJailed] = true
-// 		break
-// 	default:
-// 	}
-
-// 	if ispage {
-// 		query.SetCollection(CollectionNmValidator).
-// 			SetCondition(condition).
-// 			SetSort(desc(ValidatorFieldVotingPower)).
-// 			SetPage(page).
-// 			SetSize(size).
-// 			SetResult(&validators)
-// 	} else {
-// 		query.SetCollection(CollectionNmValidator).
-// 			SetCondition(condition).
-// 			SetSort(desc(ValidatorFieldVotingPower)).
-// 			SetResult(&validators)
-// 	}
-
-// 	count, err := query.ExecPage(total)
-
-// 	return count, validators, err
-// }
-
-// func (_ Validator) GetCandidatesTopN() ([]Validator, int64, map[string]int, error) {
-// 	var validators []Validator
-// 	var query = orm.NewQuery()
-// 	defer query.Release()
-
-// 	condition := bson.M{}
-// 	condition[ValidatorFieldJailed] = false
-// 	condition[ValidatorFieldStatus] = types.Bonded
-
-// 	query.SetCollection(CollectionNmValidator).
-// 		SetCondition(condition).
-// 		SetSort(desc(ValidatorFieldVotingPower)).SetSize(10).
-// 		SetResult(&validators)
-
-// 	err := query.Exec()
-// 	if err != nil {
-// 		return nil, 0, nil, err
-// 	}
-
-// 	var allPower vo.CountVo
-// 	query.SetResult(&allPower)
-// 	query.PipeQuery(
-// 		[]bson.M{
-// 			{"$match": condition},
-// 			{"$group": bson.M{
-// 				"_id":   ValidatorFieldVotingPower,
-// 				"count": bson.M{"$sum": "$voting_power"},
-// 			}},
-// 		},
-// 	)
-
-// 	upTimeMap := getValUpTime(query)
-
-// 	return validators, int64(allPower.Count), upTimeMap, err
-// }
 func GetValidatorByAddr(addr string) (Validator, error) {
 	db := getDb()
 	c := db.C(CollectionNmValidator)
@@ -382,26 +304,4 @@ func (_ Validator) QueryValidatorDetailByOperatorAddr(opAddr string) (Validator,
 
 func (_ Validator) Batch(txs []txn.Op) error {
 	return orm.Batch(txs)
-}
-
-func getValUpTime(query *orm.Query) map[string]int {
-	var result []Block
-	var upTimeMap = make(map[string]int)
-	var selector = bson.M{"block.last_commit.precommits.validator_address": 1}
-	query.Reset().
-		SetCollection(CollectionNmBlock).
-		SetSelector(selector).
-		SetSize(100).
-		SetSort(desc(Block_Field_Height)).
-		SetResult(&result)
-
-	if err := query.Exec(); err != nil {
-		logger.Error("getValUpTime error", logger.String("err", err.Error()))
-	}
-	for _, block := range result {
-		for _, pre := range block.Block.LastCommit.Precommits {
-			upTimeMap[pre.ValidatorAddress]++
-		}
-	}
-	return upTimeMap
 }
