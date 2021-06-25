@@ -16,6 +16,12 @@ type Proposal struct {
 	FinalTallyResult types.ProposalFinalTallyResult `bson:"final_tally_result" json:"final_tally_result"`
 	VotingEndTime    time.Time                      `bson:"voting_end_time"`
 	VotingStartTime  time.Time                      `bson:"voting_start_time"`
+	TotalDeposit     []ProposalAmount               `bson:"total_deposit"`
+}
+
+type ProposalAmount struct {
+	Denom  string `bson:"denom"`
+	Amount string `bson:"amount"`
 }
 
 // NewTransaction returns a new Transaction.
