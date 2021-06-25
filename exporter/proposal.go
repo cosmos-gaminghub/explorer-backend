@@ -36,6 +36,16 @@ func GetProposals(ps types.ProposalResult) (proposals []*schema.Proposal, err er
 			VotingEndTime:    proposal.VotingEndTime,
 			VotingStartTime:  proposal.VotingStartTime,
 		}
+
+		amounts := []schema.ProposalAmount{}
+		for _, item := range proposal.TotalDeposit {
+			a := schema.ProposalAmount{
+				Denom:  item.Denom,
+				Amount: item.Amount,
+			}
+			amounts = append(amounts, a)
+		}
+		pro.TotalDeposit = amounts
 		proposals = append(proposals, pro)
 	}
 
