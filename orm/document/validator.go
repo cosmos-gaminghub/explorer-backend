@@ -5,9 +5,7 @@ import (
 	"time"
 
 	types "github.com/cosmos-gaminghub/explorer-backend/lcd"
-	"github.com/cosmos-gaminghub/explorer-backend/orm"
 	"gopkg.in/mgo.v2/bson"
-	"gopkg.in/mgo.v2/txn"
 )
 
 const (
@@ -27,56 +25,6 @@ const (
 	ValidatorStatusValUnbonded     = 0
 	ValidatorStatusValUnbonding    = 1
 	ValidatorStatusValBonded       = 2
-)
-
-// func (v Validator) GetValidatorStatus() string {
-
-// 	if v.Jailed == false && v.Status == types.Bonded {
-// 		return "Active"
-// 	}
-
-// 	if v.Status != types.Bonded && v.Jailed == false {
-// 		return "Candidate"
-// 	}
-
-// 	return "Jailed"
-
-// }
-
-// func (v Validator) IsCandidatorWithStatus() bool {
-
-// 	if v.Status != types.Bonded && v.Jailed == false {
-// 		return true
-// 	}
-
-// 	return false
-
-// }
-
-type (
-	UptimeChangeVo struct {
-		Address string
-		Time    string
-		Uptime  float64
-	}
-
-	ValVotingPowerChangeVo struct {
-		Height  int64
-		Address string
-		Power   int64
-		Time    time.Time
-		Change  string
-	}
-
-	ValUpTimeVo struct {
-		Time   string `bson:"_id,omitempty"`
-		Uptime float64
-	}
-
-	CountVo struct {
-		Id    bson.ObjectId `bson:"_id,omitempty"`
-		Count float64
-	}
 )
 
 type Validator struct {
@@ -127,18 +75,6 @@ func (v Validator) Name() string {
 	return CollectionNmValidator
 }
 
-func (_ Validator) GetAllValidator() ([]Validator, error) {
-	var validators []Validator
-	var query = orm.NewQuery()
-	defer query.Release()
-	query.SetCollection(CollectionNmValidator).
-		SetResult(&validators)
-
-	err := query.Exec()
-
-	return validators, err
-}
-
 func (v Validator) QueryValidatorMonikerOpAddrConsensusPubkey(addrArrAsVa []string) ([]Validator, error) {
 	var validators []Validator
 	var selector = bson.M{
@@ -187,121 +123,4 @@ func GetValidatorByAddr(addr string) (Validator, error) {
 	err := c.Find(bson.M{ValidatorFieldOperatorAddress: addr}).One(&validator)
 
 	return validator, err
-}
-
-func (_ Validator) GetBondedValidators() ([]Validator, error) {
-	var (
-		validators []Validator
-	)
-
-	selector := bson.M{
-		ValidatorFieldTokens: "1",
-	}
-	condition := bson.M{
-		ValidatorFieldStatus: ValidatorStatusValBonded,
-	}
-
-	err := queryAll(CollectionNmValidator, selector, condition, "", 0, &validators)
-
-	return validators, err
-}
-
-func (_ Validator) GetBondedValidatorsSharesTokens() ([]Validator, error) {
-	var (
-		validators []Validator
-	)
-
-	selector := bson.M{
-		ValidatorFieldVotingPower:     "1",
-		ValidatorFieldOperatorAddress: "1",
-		ValidatorFieldDelegatorShares: "1",
-		ValidatorFieldTokens:          "1",
-		ValidatorFieldDescription:     "1",
-	}
-	condition := bson.M{
-		ValidatorFieldStatus: ValidatorStatusValBonded,
-	}
-
-	err := queryAll(CollectionNmValidator, selector, condition, "", 0, &validators)
-
-	return validators, err
-}
-
-func (_ Validator) QueryValidatorListByAddrList(addrs []string) ([]Validator, error) {
-	validatorArr := []Validator{}
-
-	valCondition := bson.M{
-		ValidatorFieldOperatorAddress: bson.M{"$in": addrs},
-	}
-
-	err := queryAll(CollectionNmValidator, nil, valCondition, "", 0, &validatorArr)
-
-	return validatorArr, err
-}
-
-func (_ Validator) QueryMonikerAndValidatorAddrByHashAddr(addr string) (Validator, error) {
-
-	selector := bson.M{
-		ValidatorFieldOperatorAddress: 1,
-		ValidatorFieldDescription:     1,
-		ValidatorFieldIcon:            1,
-	}
-	condition := bson.M{ValidatorFieldProposerHashAddr: addr}
-	var val Validator
-	err := queryOne(CollectionNmValidator, selector, condition, &val)
-
-	return val, err
-}
-
-func (_ Validator) QueryValidatorByConsensusAddr(addr string) (Validator, error) {
-	var query = orm.NewQuery()
-	defer query.Release()
-
-	var result Validator
-	condition := bson.M{}
-	condition[ValidatorFieldConsensusAddr] = addr
-
-	query.SetCollection(CollectionNmValidator).
-		SetResult(&result).
-		SetCondition(condition).
-		SetSize(1)
-	err := query.Exec()
-
-	return result, err
-}
-
-func (_ Validator) QueryValidatorDetailByOperatorAddr(opAddr string) (Validator, error) {
-
-	validator := Validator{}
-
-	valCondition := bson.M{
-		ValidatorFieldOperatorAddress: opAddr,
-	}
-
-	err := queryOne(CollectionNmValidator, nil, valCondition, &validator)
-
-	return validator, err
-}
-
-// func (_ Validator) QueryTotalActiveValidatorVotingPower() (int64, error) {
-
-// 	validators := []Validator{}
-// 	condition := bson.M{ValidatorFieldJailed: false, ValidatorFieldStatus: types.Bonded}
-// 	var selector = bson.M{ValidatorFieldVotingPower: 1}
-
-// 	err := queryAll(CollectionNmValidator, selector, condition, "", 0, &validators)
-
-// 	if err != nil {
-// 		return 0, err
-// 	}
-
-// 	totalVotingPower := int64(0)
-// 	for _, v := range validators {
-// 		totalVotingPower += v.VotingPower
-// 	}
-// 	return totalVotingPower, nil
-// }
-
-func (_ Validator) Batch(txs []txn.Op) error {
-	return orm.Batch(txs)
 }

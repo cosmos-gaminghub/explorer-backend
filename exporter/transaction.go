@@ -15,54 +15,11 @@ func GetTxs(txs types.TxResult, block schema.Block) (transactions []*schema.Tran
 	}
 
 	for index, tx := range txs.TxResponse {
-		// var stdTx txtypes.StdTx
-		// err = ex.cdc.UnmarshalBinaryLengthPrefixed([]byte(tx.Tx), &stdTx)
-		// if err != nil {
-		// 	return []*schema.Transaction{}, err
-		// }
+		height, _ := strconv.ParseInt(tx.Height, 10, 64)
+		gasWanted, _ := strconv.ParseInt(tx.GasWanted, 10, 64)
+		gasUsed, _ := strconv.ParseInt(tx.GasUsed, 10, 64)
 
-		// msgsBz, err := ex.cdc.MarshalJSON(stdTx.GetMsgs())
-		// if err != nil {
-		// 	return []*schema.Transaction{}, err
-		// }
-
-		// sigs := make([]types.Signature, len(stdTx.Signatures), len(stdTx.Signatures))
-
-		// for i, sig := range stdTx.Signatures {
-		// 	consPubKey, err := ctypes.Bech32ifyConsPub(sig.PubKey)
-		// 	if err != nil {
-		// 		return []*schema.Transaction{}, err
-		// 	}
-
-		// 	sigs[i] = types.Signature{
-		// 		Address:       sig.Address().String(), // hex string
-		// 		AccountNumber: sig.AccountNumber,
-		// 		Pubkey:        consPubKey,
-		// 		Sequence:      sig.Sequence,
-		// 		Signature:     base64.StdEncoding.EncodeToString(sig.Signature), // encode base64
-		// 	}
-		// }
-
-		// sigsBz, err := ex.cdc.MarshalJSON(sigs)
-		// if err != nil {
-		// 	return []*schema.Transaction{}, err
-		// }
-
-		height, err := strconv.ParseInt(tx.Height, 10, 64)
-		if err != nil {
-			return []*schema.Transaction{}, err
-		}
-
-		gasWanted, err := strconv.ParseInt(tx.GasWanted, 10, 64)
-		if err != nil {
-			return []*schema.Transaction{}, err
-		}
-
-		gasUsed, err := strconv.ParseInt(tx.GasUsed, 10, 64)
-		if err != nil {
-			return []*schema.Transaction{}, err
-		}
-		t := schema.Transaction{
+		t := schema.NewTransaction(schema.Transaction{
 			Height:     height,
 			TxHash:     tx.TxHash,
 			Code:       tx.Code,
@@ -74,9 +31,8 @@ func GetTxs(txs types.TxResult, block schema.Block) (transactions []*schema.Tran
 			Fee:        txs.Txs[index].AuthInfo.FeeInfo,
 			Signatures: txs.Txs[index].Signatures,
 			Messages:   txs.Txs[index].Body.BodyMessage,
-		}
-
-		transactions = append(transactions, &t)
+		})
+		transactions = append(transactions, t)
 	}
 
 	return transactions, nil
