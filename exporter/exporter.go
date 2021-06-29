@@ -40,17 +40,17 @@ func Start() error {
 		}
 	}()
 
-	go func() {
-		for {
-			fmt.Println("start - sync proposal")
-			err := syncProposal()
-			if err != nil {
-				fmt.Sprintf("error - sync proposal blockchain: %v\n", err)
-			}
-			fmt.Println("finish - sync proposal blockchain")
-			time.Sleep(3600 * time.Second)
-		}
-	}()
+	// go func() {
+	// 	for {
+	// 		fmt.Println("start - sync proposal")
+	// 		err := syncProposal()
+	// 		if err != nil {
+	// 			fmt.Sprintf("error - sync proposal blockchain: %v\n", err)
+	// 		}
+	// 		fmt.Println("finish - sync proposal blockchain")
+	// 		time.Sleep(3600 * time.Second)
+	// 	}
+	// }()
 
 	for {
 		select {}
@@ -68,7 +68,6 @@ func sync() error {
 	}
 
 	dbHeight := block.Height
-	fmt.Println(dbHeight)
 	if dbHeight == -1 {
 		log.Fatal(errors.Wrap(err, "failed to query the latest block height saved in database"))
 	}
@@ -103,7 +102,7 @@ func process(height int64) error {
 		logger.Error("failed to query block using rpc client:", logger.String("err", err.Error()))
 	}
 
-	txs, err := client.GetTxs(height)
+	txs, err := client.GetTxs(6753852)
 	if err != nil {
 		logger.Error("failed to get transactions:", logger.String("err", err.Error()))
 	}
@@ -113,10 +112,10 @@ func process(height int64) error {
 	// 	return fmt.Errorf("failed to query validator set using rpc client: %s", err)
 	// }
 
-	vals, err := client.GetValidators()
-	if err != nil {
-		logger.Error("failed to query validators using rpc client:", logger.String("err", err.Error()))
-	}
+	// vals, err := client.GetValidators()
+	// if err != nil {
+	// 	logger.Error("failed to query validators using rpc client:", logger.String("err", err.Error()))
+	// }
 
 	// TODO: Reward Fees Calculation
 	resultBlock, err := GetBlock(block)
@@ -130,23 +129,23 @@ func process(height int64) error {
 		logger.Error("failed to get txs:", logger.String("err", err.Error()))
 	}
 	for _, item := range resultTxs {
-		orm.Save(document.CollectionNmCommonTx, item)
+		orm.Save(document.CollectionNmCommonTx, *item)
 	}
 
-	validatorSets, err := client.GetValidatorSet(height, 0)
-	if err != nil {
-		logger.Error("failed to get validator set:", logger.String("err", err.Error()))
-	}
+	// validatorSets, err := client.GetValidatorSet(height, 0)
+	// if err != nil {
+	// 	logger.Error("failed to get validator set:", logger.String("err", err.Error()))
+	// }
 
-	SaveMissedBlock(vals, validatorSets, block)
+	// SaveMissedBlock(vals, validatorSets, block)
 
-	resultValidators, err := GetValidators(vals, validatorSets)
-	if err != nil {
-		logger.Error("failed to get validators:", logger.String("err", err.Error()))
-	}
-	for _, item := range resultValidators {
-		SaveValidator(*item)
-	}
+	// resultValidators, err := GetValidators(vals, validatorSets)
+	// if err != nil {
+	// 	logger.Error("failed to get validators:", logger.String("err", err.Error()))
+	// }
+	// for _, item := range resultValidators {
+	// 	SaveValidator(*item)
+	// }
 
 	// resultPreCommits, err := GetPreCommits(block.Block.LastCommit, valSet)
 	// if err != nil {

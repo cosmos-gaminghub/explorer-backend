@@ -5,7 +5,9 @@ go 1.16
 require (
 	github.com/cosmos/cosmos-sdk v0.42.4
 	github.com/etcd-io/bbolt v1.3.3 // indirect
+	github.com/joho/godotenv v1.3.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/robfig/cron v1.2.0 // indirect
 	github.com/shopspring/decimal v1.2.0 // indirect
 	github.com/tendermint/tendermint v0.34.10 // indirect
 	go.uber.org/zap v1.16.0 // indirect
