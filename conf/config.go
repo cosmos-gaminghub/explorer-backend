@@ -18,10 +18,11 @@ const (
 	KeyDbPoolLimit = "DB_POOL_LIMIT"
 
 	KeyAddrHubLcd = "ADDR_NODE_SERVER"
+	KeyCoin       = "DEFAUL_COIN"
 
-	KeyCoinMarketApi       = "COINMARKET_API_KEY"
-	KeyCoinMarketEndPoint  = "COINMARKET_API_ENDPOINT"
-	KeyCoinMarketApiVerion = "COINMARKET_API_VERSION"
+	KeyCoingeckoEndPoint  = "COINGECKO_API_ENDPOINT"
+	KeyCoingeckoApiVerion = "COINGECKO_API_VERSION"
+	KeyCoingeckoCurrency  = "COINGECKO_CURRENCY"
 
 	KeyPrefixAccAddr  = "cosmos"
 	KeyPrefixAccPub   = "cosmospub"
@@ -50,15 +51,16 @@ func init() {
 	}
 	config.Db = db
 
-	coinMarket := CoinMarket{
-		EndPoint: getEnv(KeyCoinMarketEndPoint, DefaultEnvironment),
-		Version:  getEnv(KeyCoinMarketApiVerion, DefaultEnvironment),
-		Apikey:   getEnv(KeyCoinMarketApi, DefaultEnvironment),
+	coingecko := Coingecko{
+		EndPoint: getEnv(KeyCoingeckoEndPoint, DefaultEnvironment),
+		Version:  getEnv(KeyCoingeckoApiVerion, DefaultEnvironment),
+		Currency: getEnv(KeyCoingeckoCurrency, DefaultEnvironment),
 	}
-	config.CoinMarket = coinMarket
+	config.Coingecko = coingecko
 
 	hubcf := hubConf{
 		LcdUrl: getEnv(KeyAddrHubLcd, DefaultEnvironment),
+		Coin:   getEnv(KeyCoin, DefaultEnvironment),
 	}
 	config.Hub = hubcf
 	logger.Info("==================================load config end==================================")
@@ -69,19 +71,20 @@ func Get() Config {
 }
 
 type Config struct {
-	Db         dbConf
-	CoinMarket CoinMarket
-	Hub        hubConf
+	Db        dbConf
+	Coingecko Coingecko
+	Hub       hubConf
 }
 
 type hubConf struct {
 	LcdUrl string
+	Coin   string
 }
 
-type CoinMarket struct {
+type Coingecko struct {
 	EndPoint string
 	Version  string
-	Apikey   string
+	Currency string
 }
 type dbConf struct {
 	Addrs     []string
