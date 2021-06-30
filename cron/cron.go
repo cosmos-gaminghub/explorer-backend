@@ -1,26 +1,26 @@
 package cron
 
 import (
-	"fmt"
 	"os"
 	"os/signal"
 
 	"github.com/cosmos-gaminghub/explorer-backend/client"
 	"github.com/cosmos-gaminghub/explorer-backend/conf"
+	"github.com/cosmos-gaminghub/explorer-backend/logger"
 	"github.com/robfig/cron"
 )
 
 // Start starts to create cron jobs which fetches chosen asset list information and
 // store them in database every hour and every 24 hours.
 func Start() error {
-	fmt.Println("Starting cron jobs...")
+	logger.Info("Starting cron jobs...")
 
 	cron := cron.New()
 
 	// Every hour
 	cron.AddFunc("0 */20 * * * *", func() {
 		client.SaveMarketChartRange(conf.Get().Hub.Coin, 20)
-		fmt.Println("successfully saved asset information list 1H")
+		logger.Info("successfully saved asset information list 1H")
 	})
 
 	go cron.Start()
