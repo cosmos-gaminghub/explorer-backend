@@ -80,12 +80,16 @@ func SaveMarketChartRange(coin string, mintue int64) (err error) {
 		return err
 	}
 	for key, item := range data.Prices {
-		t := schema.StatAssetInfoList20Minute{
-			Price:     item[1],
-			Marketcap: data.MarketCaps[key][1],
-			Volume24H: data.TotalVolumes[key][1],
+		if key == 0 || key == len(data.Prices)-1 {
+			t := schema.StatAssetInfoList20Minute{
+				Price:     item[1],
+				Marketcap: data.MarketCaps[key][1],
+				Volume24H: data.TotalVolumes[key][1],
+				Timestamp: time.Unix(int64(item[0]/1000), 0),
+			}
+			orm.Save("stats_asset", t)
 		}
-		orm.Save("stats_asset", t)
+
 	}
 	return err
 }

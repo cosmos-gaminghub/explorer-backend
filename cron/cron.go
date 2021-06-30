@@ -20,7 +20,7 @@ func Start() error {
 	// Every hour
 	cron.AddFunc("0 */20 * * * *", func() {
 		client.SaveMarketChartRange(conf.Get().Hub.Coin, 20)
-		logger.Info("successfully saved asset information list 1H")
+		logger.Info("successfully saved asset information list 20 minute")
 	})
 
 	go cron.Start()
