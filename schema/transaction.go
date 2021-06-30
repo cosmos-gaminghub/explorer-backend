@@ -34,5 +34,6 @@ func NewTransaction(t Transaction) *Transaction {
 		Fee:        t.Fee,
 		Signatures: t.Signatures,
 		Messages:   t.Messages,
+		Logs:       t.Logs,
 	}
 }
