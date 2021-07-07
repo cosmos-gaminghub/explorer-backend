@@ -113,7 +113,7 @@ func process(height int64) error {
 	// 	return fmt.Errorf("failed to query validator set using rpc client: %s", err)
 	// }
 
-	vals, err := client.GetValidators()
+	vals, err := client.GetValidators(0)
 	if err != nil {
 		logger.Error("failed to query validators using rpc client:", logger.String("err", err.Error()))
 	}

@@ -114,8 +114,8 @@ func FormatValidatorSetPubkeyToAddress(valSets []types.ValidatorOfValidatorSet) 
 
 // GetValidators returns validators detail information in Tendemrint validators in active chain
 // An error returns if the query fails.
-func GetValidators() (types.ValidatorsResult, error) {
-	url := fmt.Sprintf(lcd.UrlValidators, conf.Get().Hub.LcdUrl, types.DefaultValidatorLimit)
+func GetValidators(offset int) ([]types.Validator, error) {
+	url := fmt.Sprintf(lcd.UrlValidators, conf.Get().Hub.LcdUrl, offset)
 	resBytes, err := utils.Get(url)
 	if err != nil {
 		logger.Error("Get validators error", logger.String("err", err.Error()))
@@ -126,7 +126,16 @@ func GetValidators() (types.ValidatorsResult, error) {
 		logger.Error("Unmarshal validators error", logger.String("err", err.Error()))
 	}
 
-	return result, nil
+	total, _ := strconv.Atoi(result.Pagination.Total)
+	validators := make([]types.Validator, 0, total)
+	validators = append(validators, result.Validators...)
+
+	if len(validators) == lcd.DefaultValidatorSetLimit {
+		vals, _ := GetValidators(types.DefaultValidatorSetLimit + offset)
+		validators = append(validators, vals...)
+	}
+
+	return validators, nil
 }
 
 func GetAuthParams() (types.AuthParam, error) {

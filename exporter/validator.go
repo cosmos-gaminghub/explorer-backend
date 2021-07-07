@@ -15,9 +15,9 @@ import (
 )
 
 // getValidators parses validators information and wrap into Precommit schema struct
-func GetValidators(vals types.ValidatorsResult, validatorSets []types.ValidatorOfValidatorSet) (validators []*schema.Validator, err error) {
+func GetValidators(vals []types.Validator, validatorSets []types.ValidatorOfValidatorSet) (validators []*schema.Validator, err error) {
 	validatorSetsFormat := client.FormatValidatorSetPubkeyToAddress(validatorSets)
-	for _, validator := range vals.Validators {
+	for _, validator := range vals {
 		tokens, _ := utils.ParseInt(validator.Tokens)
 		var consensusAddress string
 		if val, ok := validatorSetsFormat[validator.ConsensusPubkey.Key]; ok {

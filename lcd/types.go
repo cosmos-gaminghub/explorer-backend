@@ -11,7 +11,7 @@ const (
 	UrlAccount                = "%s/bank/accounts/%s"
 	UrlBankTokenStats         = "%s/bank/token-stats"
 	UrlValidator              = "%s/stake/validators/%s"
-	UrlValidators             = "%s/cosmos/staking/v1beta1/validators?pagination.limit=%d"
+	UrlValidators             = "%s/cosmos/staking/v1beta1/validators?pagination.offset=%d"
 	UrlDelegationByVal        = "%s/stake/validators/%s/delegations"
 	UrlDelegationsByDelegator = "%s/stake/delegators/%s/delegations"
 	//UrlDelegationsFromValidatorByDelegator = "%s/stake/delegators/%s/validators/%s"
@@ -48,7 +48,7 @@ const (
 	UrlProposalVoters   = "%s/cosmos/gov/v1beta1/proposals/%d/votes?pagination.offset=%d"
 
 	DefaultValidatorSetLimit = 100
-	DefaultValidatorLimit    = 281
+	DefaultValidatorLimit    = 200
 )
 
 type AccountVo struct {
@@ -81,6 +81,7 @@ type Validator struct {
 
 type ValidatorsResult struct {
 	Validators []Validator `json:"validators"`
+	Pagination Pagination  `json:"pagination"`
 }
 
 func (v Validator) String() string {
