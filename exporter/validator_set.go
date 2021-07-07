@@ -9,10 +9,10 @@ import (
 )
 
 // getValidators parses validators information and wrap into Precommit schema struct
-func SaveMissedBlock(vals types.ValidatorsResult, validatorSets []types.ValidatorOfValidatorSet, block types.BlockResult) {
+func SaveMissedBlock(vals []types.Validator, validatorSets []types.ValidatorOfValidatorSet, block types.BlockResult) {
 	height, _ := utils.ParseInt(block.Block.Header.Height)
 	validatorSetsFormat := client.FormatValidatorSetPubkeyToIndex(validatorSets)
-	for _, validator := range vals.Validators {
+	for _, validator := range vals {
 		if val, ok := validatorSetsFormat[validator.ConsensusPubkey.Key]; ok {
 			if len(block.Block.LastCommit.Signatures) > 0 {
 				signedInfo := block.Block.LastCommit.Signatures[val]
