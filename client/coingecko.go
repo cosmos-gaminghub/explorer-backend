@@ -27,7 +27,7 @@ type CoinsIDMarketChart struct {
 	TotalVolumes []ChartItem `json:"total_volumes"`
 }
 
-type ChartItem [2]float32
+type ChartItem [2]interface{}
 
 func Get(uri string, mapQuery map[string]string) ([]byte, error) {
 	client := &http.Client{}
@@ -70,8 +70,8 @@ func SaveMarketChartRange(coin string, mintue int64) (err error) {
 		currentTime = time.Now().Unix()
 	}
 
-	query["from"] = strconv.FormatInt(currentTime-mintue*60, 10)
-	query["to"] = strconv.FormatInt(currentTime, 10)
+	query["from"] = strconv.FormatInt(currentTime, 10)
+	query["to"] = strconv.FormatInt(currentTime+int64(mintue*60), 10)
 	query["vs_currency"] = conf.Get().Coingecko.Currency
 
 	uri := fmt.Sprintf(ConcurrencyQuoteLast, coin)
@@ -87,12 +87,13 @@ func SaveMarketChartRange(coin string, mintue int64) (err error) {
 		return err
 	}
 	for key, item := range data.Prices {
-		if key == 0 {
+		if key == len(data.Prices)-1 {
+			unixIntValue := int64(item[0].(float64) / 1000)
 			t := schema.StatAssetInfoList20Minute{
-				Price:     item[1],
-				Marketcap: data.MarketCaps[key][1],
-				Volume24H: data.TotalVolumes[key][1],
-				Timestamp: time.Unix(int64(item[0]/1000), 0),
+				Price:     item[0].(float64),
+				Marketcap: data.MarketCaps[key][1].(float64),
+				Volume24H: data.TotalVolumes[key][1].(float64),
+				Timestamp: time.Unix(unixIntValue, 0),
 			}
 			orm.Save("stats_asset", t)
 		}
