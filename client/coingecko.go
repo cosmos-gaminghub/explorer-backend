@@ -90,7 +90,7 @@ func SaveMarketChartRange(coin string, mintue int64) (err error) {
 		if key == len(data.Prices)-1 {
 			unixIntValue := int64(item[0].(float64) / 1000)
 			t := schema.StatAssetInfoList20Minute{
-				Price:     item[0].(float64),
+				Price:     item[1].(float64),
 				Marketcap: data.MarketCaps[key][1].(float64),
 				Volume24H: data.TotalVolumes[key][1].(float64),
 				Timestamp: time.Unix(unixIntValue, 0),
