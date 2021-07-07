@@ -13,6 +13,7 @@ import (
 
 	"github.com/cosmos-gaminghub/explorer-backend/conf"
 	"github.com/cosmos-gaminghub/explorer-backend/orm"
+	"github.com/cosmos-gaminghub/explorer-backend/orm/document"
 	"github.com/cosmos-gaminghub/explorer-backend/schema"
 )
 
@@ -62,7 +63,13 @@ func Get(uri string, mapQuery map[string]string) ([]byte, error) {
 
 func SaveMarketChartRange(coin string, mintue int64) (err error) {
 	query := make(map[string]string)
-	currentTime := time.Now().Unix()
+	last, _ := document.StatAssetInfoList20Minute{}.QueryLatestStatAssetFromDB()
+
+	currentTime := last.Timestamp.Unix()
+	if last == (document.StatAssetInfoList20Minute{}) {
+		currentTime = time.Now().Unix()
+	}
+
 	query["from"] = strconv.FormatInt(currentTime-mintue*60, 10)
 	query["to"] = strconv.FormatInt(currentTime, 10)
 	query["vs_currency"] = conf.Get().Coingecko.Currency
