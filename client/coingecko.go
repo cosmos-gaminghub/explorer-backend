@@ -88,7 +88,6 @@ func SaveMarketChartRange(coin string, mintue int64) (err error) {
 		log.Fatalln("Unmarshal coinmarket get currency quote lastest error")
 		return err
 	}
-	fmt.Println(data.Prices)
 	for key, item := range data.Prices {
 		if key == len(data.Prices)-1 {
 			unixIntValue := int64(item[0].(float64) / 1000)
