@@ -763,6 +763,11 @@ type ProposalContent struct {
 		Denom  string `json:"denom"`
 		Amount string `json:"amount"`
 	} `bson:"amount" json:"amount"`
+	Changes []struct {
+		Key      string `json:"key"`
+		Value    string `json:"value"`
+		Subspace string `json:"subspace"`
+	} `json:"changes"`
 }
 
 type ProposalFinalTallyResult struct {
