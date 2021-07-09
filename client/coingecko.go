@@ -68,10 +68,12 @@ func SaveMarketChartRange(coin string, mintue int64) (err error) {
 	currentTime := last.Timestamp.Unix()
 	if last == (document.StatAssetInfoList20Minute{}) {
 		currentTime = time.Now().Unix()
+		query["from"] = strconv.FormatInt(currentTime-int64(mintue*60), 10)
+		query["to"] = strconv.FormatInt(currentTime, 10)
+	} else {
+		query["from"] = strconv.FormatInt(currentTime, 10)
+		query["to"] = strconv.FormatInt(currentTime+int64(mintue*60), 10)
 	}
-
-	query["from"] = strconv.FormatInt(currentTime, 10)
-	query["to"] = strconv.FormatInt(currentTime+int64(mintue*60), 10)
 	query["vs_currency"] = conf.Get().Coingecko.Currency
 
 	uri := fmt.Sprintf(ConcurrencyQuoteLast, coin)
@@ -86,6 +88,7 @@ func SaveMarketChartRange(coin string, mintue int64) (err error) {
 		log.Fatalln("Unmarshal coinmarket get currency quote lastest error")
 		return err
 	}
+	fmt.Println(data.Prices)
 	for key, item := range data.Prices {
 		if key == len(data.Prices)-1 {
 			unixIntValue := int64(item[0].(float64) / 1000)
