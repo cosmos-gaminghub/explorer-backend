@@ -13,6 +13,7 @@ type Proposal struct {
 	ProposalStatus   string                         `bson:"proposal_status"`
 	Content          types.ProposalContent          `bson:"content" json:"content"`
 	SubmitTime       time.Time                      `bson:"submit_time"`
+	DepositEndTime   time.Time                      `bson:"deposit_end_time"`
 	FinalTallyResult types.ProposalFinalTallyResult `bson:"final_tally_result" json:"final_tally_result"`
 	VotingEndTime    time.Time                      `bson:"voting_end_time"`
 	VotingStartTime  time.Time                      `bson:"voting_start_time"`
@@ -35,5 +36,6 @@ func NewProposal(t Proposal) *Proposal {
 		FinalTallyResult: t.FinalTallyResult,
 		VotingEndTime:    t.VotingEndTime,
 		VotingStartTime:  t.VotingStartTime,
+		DepositEndTime:   t.DepositEndTime,
 	}
 }

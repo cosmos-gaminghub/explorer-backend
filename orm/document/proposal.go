@@ -16,6 +16,7 @@ type Proposal struct {
 	ProposalStatus   string           `bson:"proposal_status"`
 	Content          Content          `bson:"content" json:"content"`
 	SubmitTime       time.Time        `bson:"submit_time"`
+	DepositEndTime   time.Time        `bson:"deposit_end_time"`
 	FinalTallyResult FinalTallyResult `bson:"final_tally_result" json:"final_tally_result"`
 	VotingEndTime    time.Time        `bson:"voting_end_time"`
 	VotingStartTime  time.Time        `bson:"voting_start_time"`

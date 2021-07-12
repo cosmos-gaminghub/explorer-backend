@@ -35,6 +35,7 @@ func GetProposals(ps types.ProposalResult) (proposals []*schema.Proposal, err er
 			FinalTallyResult: proposal.FinalTallyResult,
 			VotingEndTime:    proposal.VotingEndTime,
 			VotingStartTime:  proposal.VotingStartTime,
+			DepositEndTime:   proposal.DepositEndTime,
 		}
 
 		amounts := []schema.ProposalAmount{}
