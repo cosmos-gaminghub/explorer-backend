@@ -31,6 +31,7 @@ func GetTxs(txs types.TxResult, block schema.Block) (transactions []*schema.Tran
 			Fee:        txs.Txs[index].AuthInfo.FeeInfo,
 			Signatures: txs.Txs[index].Signatures,
 			Messages:   txs.Txs[index].Body.BodyMessage,
+			RawLog:     tx.RawLog,
 		})
 		transactions = append(transactions, t)
 	}

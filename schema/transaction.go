@@ -19,6 +19,7 @@ type Transaction struct {
 	Signatures []string    `bson:"signatures" json:"signatures"`
 	Messages   string      `bson:"messages"`
 	Fee        types.Fee   `bson:"fee" json:"fee"`
+	RawLog     string      `bson:"raw_log"`
 }
 
 // NewTransaction returns a new Transaction.
@@ -35,5 +36,6 @@ func NewTransaction(t Transaction) *Transaction {
 		Signatures: t.Signatures,
 		Messages:   t.Messages,
 		Logs:       t.Logs,
+		RawLog:     t.RawLog,
 	}
 }
