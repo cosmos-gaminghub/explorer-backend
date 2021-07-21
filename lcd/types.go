@@ -768,6 +768,13 @@ type ProposalContent struct {
 		Value    string `json:"value"`
 		Subspace string `json:"subspace"`
 	} `json:"changes"`
+	Plan struct {
+		Name                string    `json:"name"`
+		Time                time.Time `json:"time"`
+		Height              string    `json:"height"`
+		Info                string    `json:"info"`
+		UpgradedClientState string    `json:"upgraded_client_state"`
+	} `json:"plan"`
 }
 
 type ProposalFinalTallyResult struct {
