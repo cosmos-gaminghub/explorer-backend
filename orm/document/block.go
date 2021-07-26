@@ -1,12 +1,13 @@
 package document
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/cosmos-gaminghub/explorer-backend/logger"
 	"github.com/cosmos-gaminghub/explorer-backend/orm"
+	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+	"gopkg.in/mgo.v2/txn"
 )
 
 const (
@@ -32,20 +33,6 @@ type Block struct {
 	Validators   []TmValidator `bson:"validators"`
 	Result       BlockResults  `bson:"results"`
 	ProposalAddr string        `bson:"proposal_address"`
-}
-
-func (b Block) String() string {
-	return fmt.Sprintf(`
-		Height      :%v
-		Hash        :%v
-		Time        :%v
-		NumTxs      :%v
-		Meta        :%v
-		Block       :%v
-		Validators  :%v
-		Result      :%v
-		ProposalAddr:%v
-		`, b.Height, b.Hash, b.Time, b.NumTxs, b.Meta, b.Block, b.Validators, b.Result, b.ProposalAddr)
 }
 
 func (_ Block) QueryLatestBlockFromDB() (Block, error) {
@@ -197,6 +184,26 @@ func (d Block) Name() string {
 
 func (d Block) PkKvPair() map[string]interface{} {
 	return bson.M{Block_Field_Height: d.Height}
+}
+
+func (d Block) EnsureIndexes() []mgo.Index {
+	indexes := []mgo.Index{
+		{
+			Key:        []string{Block_Field_Height},
+			Unique:     true,
+			Background: true,
+		},
+		{
+			Key:        []string{Block_Field_ProposalAddress, Block_Field_Height},
+			Background: true,
+		},
+	}
+
+	return indexes
+}
+
+func (d Block) Batch(txs []txn.Op) error {
+	return orm.Batch(txs)
 }
 
 type ResValidatorPreCommits struct {

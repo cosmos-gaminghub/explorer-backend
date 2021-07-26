@@ -18,5 +18,8 @@ var (
 	Docs = []Doc{
 		TaskControlModel,
 		new(ExStaticDelegator),
+		new(Block),
+		new(CommonTx),
+		new(MissedBlock),
 	}
 )
