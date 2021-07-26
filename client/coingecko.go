@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/cosmos-gaminghub/explorer-backend/conf"
+	"github.com/cosmos-gaminghub/explorer-backend/logger"
 	"github.com/cosmos-gaminghub/explorer-backend/orm"
 	"github.com/cosmos-gaminghub/explorer-backend/orm/document"
 	"github.com/cosmos-gaminghub/explorer-backend/schema"
@@ -66,28 +67,37 @@ func SaveMarketChartRange(coin string, mintue int64) (err error) {
 	last, _ := document.StatAssetInfoList20Minute{}.QueryLatestStatAssetFromDB()
 
 	currentTime := last.Timestamp.Unix()
-	if last == (document.StatAssetInfoList20Minute{}) {
-		currentTime = time.Now().Unix()
-		query["from"] = strconv.FormatInt(currentTime-int64(mintue*60), 10)
-		query["to"] = strconv.FormatInt(currentTime, 10)
-	} else {
-		query["from"] = strconv.FormatInt(currentTime, 10)
-		query["to"] = strconv.FormatInt(currentTime+int64(mintue*60), 10)
-	}
 	query["vs_currency"] = conf.Get().Coingecko.Currency
 
-	uri := fmt.Sprintf(ConcurrencyQuoteLast, coin)
-	resBytes, err := Get(uri, query)
-	if err != nil {
-		log.Fatalln("Get oinmarket get currency quote lastest error")
-		return err
+	var mintueToCalculate int64
+	var data CoinsIDMarketChart
+	for {
+		mintueToCalculate = mintueToCalculate + mintue
+		if last == (document.StatAssetInfoList20Minute{}) {
+			currentTime = time.Now().Unix()
+			query["from"] = strconv.FormatInt(currentTime-int64(mintueToCalculate*60), 10)
+			query["to"] = strconv.FormatInt(currentTime, 10)
+		} else {
+			query["from"] = strconv.FormatInt(currentTime, 10)
+			query["to"] = strconv.FormatInt(currentTime+int64(mintueToCalculate*60), 10)
+		}
+
+		uri := fmt.Sprintf(ConcurrencyQuoteLast, coin)
+		resBytes, err := Get(uri, query)
+		if err != nil {
+			logger.Error("Get oinmarket get currency quote lastest error")
+		}
+
+		if err := json.Unmarshal(resBytes, &data); err != nil {
+			logger.Error("Unmarshal coinmarket get currency quote lastest error")
+		}
+
+		// Check api return more than 1 object
+		if len(data.Prices) > 1 {
+			break
+		}
 	}
 
-	var data CoinsIDMarketChart
-	if err := json.Unmarshal(resBytes, &data); err != nil {
-		log.Fatalln("Unmarshal coinmarket get currency quote lastest error")
-		return err
-	}
 	for key, item := range data.Prices {
 		if key == len(data.Prices)-1 {
 			unixIntValue := int64(item[0].(float64) / 1000)
