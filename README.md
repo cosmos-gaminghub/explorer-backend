@@ -1,5 +1,5 @@
 # GAME Explorer Backend
-Blockchain explorer for the [CosmosSDK](https://github.com/cosmos/cosmos-sdk) based Blockchain(ex [gaia](https://github.com/cosmos/gaia)). This backend server can be applied to any cosmosSDK based blockchain.
+Blockchain exporter for the [CosmosSDK](https://github.com/cosmos/cosmos-sdk) based Blockchain(ex [gaia](https://github.com/cosmos/gaia)). This backend server can be applied to any cosmosSDK based blockchain to sync as mongoDB collections.
 
 **Prerequisites**
 * go1.16.0+
@@ -10,20 +10,21 @@ Blockchain explorer for the [CosmosSDK](https://github.com/cosmos/cosmos-sdk) ba
 - set up mongoDB
 
 - build source
-Just run explorer binary after building source.
+Just run exporter binary after building source.
 ```bash
 git clone https://github.com/cosmos-gaminghub/explorer-backend.git
 cd explorer-backend
 cp .env.example .env
 make all
-./build/explorer
+./build/exporter
+./build/cron
 ```
 
-or apply service to mangae explorer process.
+or apply service to mangae exporter process.
 
 ### Use Service
 ```sh
-### service
+### exporter service
 tee /etc/systemd/system/explorer-backend.service > /dev/null <<EOF
 [Unit]
 Description=exploder-backend
@@ -34,7 +35,7 @@ User=root
 Group=root
 
 WorkingDirectory=/root/explorer-backend
-ExecStart=/root/explorer-backend/build/explorer
+ExecStart=/root/explorer-backend/build/exporter
 
 Restart=on-failure
 RestartSec=10
@@ -46,13 +47,38 @@ EOF
 systemctl daemon-reload
 systemctl enable explorer-backend
 systemctl start explorer-backend
+
+
+### cron service
+tee /etc/systemd/system/explorer-cron.service > /dev/null <<EOF
+[Unit]
+Description=exploder-cron
+
+[Service]
+Type=simple
+User=root
+Group=root
+
+WorkingDirectory=/root/explorer-backend
+ExecStart=/root/explorer-backend/build/cron
+
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl daemon-reload
+systemctl enable explorer-cron
+systemctl start explorer-cron
 ```
 
 ### Start in local
 
 ```bash
 docker run -p 27017:27017 --name dev-mongo mongo
-./build/explorer
+./build/exporter
 ```
 
 ## Setting environment variables
@@ -64,7 +90,6 @@ DB_DATABASE        | database's name              | test
 DB_USER            | database's username          |
 DB_PASSWORD        | database's password          |
 DB_POOL_LOMIT      | database max connection num  | 4096
-PORT               | explorer server's port       | 8080
 ADDR_NODE_SERVER   | node lcd URI                 | http://198.13.33.206:1317
 
 CoinGecko Env Variables | Description  | Default
@@ -75,7 +100,7 @@ COINGECKO_CURRENCY      | API currency | usd
 
 
 ## System Architechture
-In the backend, explorer binary watches cosmosSDK based chain node(especially blocks and proposals) and insert synced data into mongoDB. Also cron binary updates coingecko price data every 20min.
+In the backend, exporter binary watches cosmosSDK based chain node(especially blocks and proposals) and insert synced data into mongoDB. Also cron binary updates coingecko price data every 20min.
 
 **ref**:
 - [explorer-graphql](https://github.com/cosmos-gaminghub/explorer-graphql) responses API data to the frontend.

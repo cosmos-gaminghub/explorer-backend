@@ -7,4 +7,5 @@ get_deps:
 
 build:
 	rm -rf ./build
-	go build -o build/explorer explorer.go
+	go build -o build/exporter exporter.go
+	go build -o build/cron cron.go
