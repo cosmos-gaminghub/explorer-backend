@@ -1,0 +1,25 @@
+package document
+
+import (
+	"gopkg.in/mgo.v2"
+)
+
+type (
+	Doc interface {
+		Name() string
+		PkKvPair() map[string]interface{}
+		EnsureIndexes() []mgo.Index
+	}
+)
+
+var (
+	TaskControlModel TaskControl
+
+	Docs = []Doc{
+		TaskControlModel,
+		new(ExStaticDelegator),
+		new(Block),
+		new(CommonTx),
+		new(MissedBlock),
+	}
+)
