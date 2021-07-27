@@ -62,7 +62,7 @@ func GetTxs(height int64) (txs types.TxResult, err error) {
 	}
 
 	if len(txs.TxResponse) > 0 {
-		for index, _ := range txs.TxResponse {
+		for index := range txs.TxResponse {
 			mJson, _ := json.Marshal(result["txs"][index]["body"]["messages"])
 			txs.Txs[index].Body.BodyMessage = string(mJson)
 		}

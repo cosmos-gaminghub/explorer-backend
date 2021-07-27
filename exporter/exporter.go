@@ -25,7 +25,7 @@ var (
 type Exporter struct {
 }
 
-// Start starts to synchronize Binance Chain data.
+// Start starts to synchronize Chain data.
 func Start() error {
 	fmt.Println("Starting Chain Exporter...")
 	go func() {
@@ -33,7 +33,7 @@ func Start() error {
 			fmt.Println("start - sync blockchain")
 			err := sync()
 			if err != nil {
-				fmt.Sprintf("error - sync blockchain: %v\n", err)
+				fmt.Printf("error - sync blockchain: %v\n", err)
 			}
 			fmt.Println("finish - sync blockchain")
 			time.Sleep(time.Second)
@@ -45,7 +45,7 @@ func Start() error {
 			fmt.Println("start - sync proposal")
 			err := syncProposal()
 			if err != nil {
-				fmt.Sprintf("error - sync proposal blockchain: %v\n", err)
+				fmt.Printf("error - sync proposal blockchain: %v\n", err)
 			}
 			fmt.Println("finish - sync proposal blockchain")
 			time.Sleep(3600 * time.Second)

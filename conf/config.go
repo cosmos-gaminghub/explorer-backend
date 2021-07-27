@@ -18,7 +18,7 @@ const (
 	KeyDbPoolLimit = "DB_POOL_LIMIT"
 
 	KeyAddrHubLcd = "ADDR_NODE_SERVER"
-	KeyCoin       = "DEFAUL_COIN"
+	KeyCoin       = "DEFAULT_COIN"
 
 	KeyCoingeckoEndPoint  = "COINGECKO_API_ENDPOINT"
 	KeyCoingeckoApiVerion = "COINGECKO_API_VERSION"
