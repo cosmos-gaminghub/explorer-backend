@@ -75,4 +75,8 @@ COINGECKO_CURRENCY      | API currency | usd
 
 
 ## System Architechture
-In the backend, explorer binary watch cosmosSDK based chain node and insert sync data in mongoDB. Also cron binary update coingecko price data every 20min. explorer-graphql response API data to frontend. explorer-fronted consists of nuxt.js framework.
+In the backend, explorer binary watches cosmosSDK based chain node(especially blocks and proposals) and insert synced data into mongoDB. Also cron binary updates coingecko price data every 20min.
+
+**ref**:
+- [explorer-graphql](https://github.com/cosmos-gaminghub/explorer-graphql) responses API data to the frontend.
+- [explorer-fronted](https://github.com/cosmos-gaminghub/explorer-frontend) consists of [nuxt.js](https://nuxtjs.org/) framework.
