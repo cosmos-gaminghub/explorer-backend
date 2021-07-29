@@ -194,6 +194,10 @@ func (d Block) EnsureIndexes() []mgo.Index {
 			Background: true,
 		},
 		{
+			Key:        []string{Block_Field_NumTxs},
+			Background: true,
+		},
+		{
 			Key:        []string{Block_Field_ProposalAddress, Block_Field_Height},
 			Background: true,
 		},
