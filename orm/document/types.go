@@ -14,12 +14,11 @@ type (
 
 var (
 	TaskControlModel TaskControl
-
-	Docs = []Doc{
+	Docs             = []Doc{
 		TaskControlModel,
-		new(ExStaticDelegator),
 		new(Block),
 		new(CommonTx),
 		new(MissedBlock),
+		new(AccountTransaction),
 	}
 )
