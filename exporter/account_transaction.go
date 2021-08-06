@@ -27,7 +27,7 @@ func SaveAccountTransaction(validators []*schema.Validator, transactions []*sche
 func getListAccountAddres(messages string) []string {
 	var list []string
 	for {
-		if strings.Contains(messages, "cosmos") && !strings.Contains(messages, "cosmosvaloper") {
+		if strings.Contains(messages, "cosmos") {
 			index := strings.Index(messages, "cosmos")
 			address := utils.Convert("cosmos", messages[index:index+45])
 			if address != "" {
