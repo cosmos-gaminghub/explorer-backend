@@ -3,6 +3,7 @@ package document
 import (
 	"fmt"
 
+	"github.com/cosmos-gaminghub/explorer-backend/conf"
 	"github.com/cosmos-gaminghub/explorer-backend/logger"
 	"github.com/cosmos-gaminghub/explorer-backend/orm"
 	"github.com/cosmos-gaminghub/explorer-backend/utils"
@@ -22,15 +23,18 @@ func ensureCollectionIndexes() {
 	query := orm.NewQuery()
 	defer query.Release()
 
-	for _, d := range Docs {
-		c := query.GetDb().C(d.Name())
-		for _, v := range d.EnsureIndexes() {
-			if err := c.EnsureIndex(v); err != nil {
-				logger.Error("ensure index fail", logger.String("collectionName", d.Name()),
-					logger.String("index", string(utils.MarshalJsonIgnoreErr(v))))
+	if conf.Get().Db.FastSync == "false" {
+		for _, d := range Docs {
+			c := query.GetDb().C(d.Name())
+			for _, v := range d.EnsureIndexes() {
+				if err := c.EnsureIndex(v); err != nil {
+					logger.Error("ensure index fail", logger.String("collectionName", d.Name()),
+						logger.String("index", string(utils.MarshalJsonIgnoreErr(v))))
+				}
 			}
 		}
 	}
+
 }
 
 func desc(field string) string {
