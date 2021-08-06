@@ -17,7 +17,7 @@ const (
 
 	Tx_Field_Time        = "timestamp"
 	Tx_Field_Height      = "height"
-	Tx_Field_Hash        = "tx_hash"
+	Tx_Field_Hash        = "txhash"
 	Tx_Field_From        = "from"
 	Tx_Field_To          = "to"
 	Tx_Field_Signers     = "signers"
@@ -169,6 +169,11 @@ func (d CommonTx) EnsureIndexes() []mgo.Index {
 		{
 			Key:        []string{Tx_Field_Height},
 			Background: true,
+		},
+		{
+			Key:        []string{Tx_Field_Hash},
+			Background: true,
+			Unique:     true,
 		},
 		{
 			Key:        []string{Tx_Field_Event_Type, Tx_Field_Event_Key, Tx_Field_Event_Value},

@@ -3,6 +3,8 @@ package conf
 import (
 	"log"
 	"os"
+	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 
@@ -98,7 +100,8 @@ type dbConf struct {
 }
 
 func getEnv(key string, environment string) string {
-	err := godotenv.Load(".env")
+	_, b, _, _ := runtime.Caller(0)
+	err := godotenv.Load(filepath.Join(filepath.Dir(b), "../"+environment))
 
 	if err != nil {
 		log.Fatalf("Error loading .env file")
@@ -108,7 +111,8 @@ func getEnv(key string, environment string) string {
 }
 
 func getEnvInt(key string, environment string) int {
-	err := godotenv.Load(".env")
+	_, b, _, _ := runtime.Caller(0)
+	err := godotenv.Load(filepath.Join(filepath.Dir(b), "../"+environment))
 
 	if err != nil {
 		log.Fatalf("Error loading .env file")
