@@ -3,6 +3,8 @@ package conf
 import (
 	"log"
 	"os"
+	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 
@@ -16,6 +18,7 @@ const (
 	KeyDbUser      = "DB_USER"
 	KeyDbPwd       = "DB_PASSWORD"
 	KeyDbPoolLimit = "DB_POOL_LIMIT"
+	KeyFastSyn     = "FAST_SYNC"
 
 	KeyAddrHubLcd = "ADDR_NODE_SERVER"
 	KeyCoin       = "DEFAULT_COIN"
@@ -48,6 +51,7 @@ func init() {
 		UserName:  getEnv(KeyDbUser, DefaultEnvironment),
 		Password:  getEnv(KeyDbPwd, DefaultEnvironment),
 		PoolLimit: getEnvInt(KeyDbPoolLimit, DefaultEnvironment),
+		FastSync:  getEnv(KeyFastSyn, DefaultEnvironment),
 	}
 	config.Db = db
 
@@ -92,10 +96,12 @@ type dbConf struct {
 	UserName  string
 	Password  string
 	PoolLimit int
+	FastSync  string
 }
 
 func getEnv(key string, environment string) string {
-	err := godotenv.Load(".env")
+	_, b, _, _ := runtime.Caller(0)
+	err := godotenv.Load(filepath.Join(filepath.Dir(b), "../"+environment))
 
 	if err != nil {
 		log.Fatalf("Error loading .env file")
@@ -105,7 +111,8 @@ func getEnv(key string, environment string) string {
 }
 
 func getEnvInt(key string, environment string) int {
-	err := godotenv.Load(".env")
+	_, b, _, _ := runtime.Caller(0)
+	err := godotenv.Load(filepath.Join(filepath.Dir(b), "../"+environment))
 
 	if err != nil {
 		log.Fatalf("Error loading .env file")

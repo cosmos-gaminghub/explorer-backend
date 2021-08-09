@@ -148,6 +148,8 @@ func process(height int64) error {
 		SaveValidator(*item)
 	}
 
+	SaveAccountTransaction(resultValidators, resultTxs)
+
 	// resultPreCommits, err := GetPreCommits(block.Block.LastCommit, valSet)
 	// if err != nil {
 	// 	return fmt.Errorf("failed to get precommits: %s", err)
