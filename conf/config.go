@@ -29,12 +29,6 @@ const (
 	KeyCoingeckoApiVerion = "COINGECKO_API_VERSION"
 	KeyCoingeckoCurrency  = "COINGECKO_CURRENCY"
 
-	KeyPrefixAccPub   = "cosmospub"
-	KeyPrefixValAddr  = "cosmosvaloper"
-	KeyPrefixValPub   = "cosmosvaloperpub"
-	KeyPrefixConsAddr = "cosmosvalcons"
-	KeyPrefixConsPub  = "cosmosvalconspub"
-
 	EnvironmentDevelop = ".env"
 	DefaultEnvironment = EnvironmentDevelop
 )
