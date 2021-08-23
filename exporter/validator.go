@@ -29,7 +29,7 @@ func GetValidators(vals []types.Validator, validatorSets []types.ValidatorOfVali
 			OperatorAddr:    validator.OperatorAddress,
 			ConsensusAddres: consensusAddress,
 			ConsensusPubkey: validator.ConsensusPubkey.Key,
-			AccountAddr:     utils.Convert(conf.KeyPrefixAccAddr, validator.OperatorAddress),
+			AccountAddr:     utils.Convert(conf.Get().Db.AddresPrefix, validator.OperatorAddress),
 			Jailed:          validator.Jailed,
 			Status:          validator.Status,
 			Tokens:          tokens,

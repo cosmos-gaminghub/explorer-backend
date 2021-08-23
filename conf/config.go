@@ -13,12 +13,14 @@ import (
 )
 
 const (
-	KeyDbAddr      = "DB_ADDR"
-	KeyDATABASE    = "DB_DATABASE"
-	KeyDbUser      = "DB_USER"
-	KeyDbPwd       = "DB_PASSWORD"
-	KeyDbPoolLimit = "DB_POOL_LIMIT"
-	KeyFastSyn     = "FAST_SYNC"
+	KeyDbAddr         = "DB_ADDR"
+	KeyDATABASE       = "DB_DATABASE"
+	KeyDbUser         = "DB_USER"
+	KeyDbPwd          = "DB_PASSWORD"
+	KeyDbPoolLimit    = "DB_POOL_LIMIT"
+	KeyFastSyn        = "FAST_SYNC"
+	KeySyncFromHeight = "SYNC_FROM_HEIGHT"
+	KeyAddressPrefix  = "ADDRESS_PREFIX"
 
 	KeyAddrHubLcd = "ADDR_NODE_SERVER"
 	KeyCoin       = "DEFAULT_COIN"
@@ -26,13 +28,6 @@ const (
 	KeyCoingeckoEndPoint  = "COINGECKO_API_ENDPOINT"
 	KeyCoingeckoApiVerion = "COINGECKO_API_VERSION"
 	KeyCoingeckoCurrency  = "COINGECKO_CURRENCY"
-
-	KeyPrefixAccAddr  = "cosmos"
-	KeyPrefixAccPub   = "cosmospub"
-	KeyPrefixValAddr  = "cosmosvaloper"
-	KeyPrefixValPub   = "cosmosvaloperpub"
-	KeyPrefixConsAddr = "cosmosvalcons"
-	KeyPrefixConsPub  = "cosmosvalconspub"
 
 	EnvironmentDevelop = ".env"
 	DefaultEnvironment = EnvironmentDevelop
@@ -46,12 +41,14 @@ func init() {
 	logger.Info("==================================load config start==================================")
 	addrs := strings.Split(getEnv(KeyDbAddr, DefaultEnvironment), ",")
 	db := dbConf{
-		Addrs:     addrs,
-		Database:  getEnv(KeyDATABASE, DefaultEnvironment),
-		UserName:  getEnv(KeyDbUser, DefaultEnvironment),
-		Password:  getEnv(KeyDbPwd, DefaultEnvironment),
-		PoolLimit: getEnvInt(KeyDbPoolLimit, DefaultEnvironment),
-		FastSync:  getEnv(KeyFastSyn, DefaultEnvironment),
+		Addrs:          addrs,
+		Database:       getEnv(KeyDATABASE, DefaultEnvironment),
+		UserName:       getEnv(KeyDbUser, DefaultEnvironment),
+		Password:       getEnv(KeyDbPwd, DefaultEnvironment),
+		PoolLimit:      getEnvInt(KeyDbPoolLimit, DefaultEnvironment),
+		FastSync:       getEnv(KeyFastSyn, DefaultEnvironment),
+		SyncFromHeight: getEnvInt(KeySyncFromHeight, DefaultEnvironment),
+		AddresPrefix:   getEnv(KeyAddressPrefix, DefaultEnvironment),
 	}
 	config.Db = db
 
@@ -91,12 +88,14 @@ type Coingecko struct {
 	Currency string
 }
 type dbConf struct {
-	Addrs     []string
-	Database  string
-	UserName  string
-	Password  string
-	PoolLimit int
-	FastSync  string
+	Addrs          []string
+	Database       string
+	UserName       string
+	Password       string
+	PoolLimit      int
+	FastSync       string
+	SyncFromHeight int
+	AddresPrefix   string
 }
 
 func getEnv(key string, environment string) string {
