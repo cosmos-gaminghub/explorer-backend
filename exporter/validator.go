@@ -2,6 +2,7 @@ package exporter
 
 import (
 	"encoding/base64"
+	"fmt"
 
 	"github.com/cosmos-gaminghub/explorer-backend/client"
 	"github.com/cosmos-gaminghub/explorer-backend/conf"
@@ -12,6 +13,10 @@ import (
 	"github.com/cosmos-gaminghub/explorer-backend/utils"
 	"github.com/cosmos/cosmos-sdk/types/bech32"
 	"gopkg.in/mgo.v2/bson"
+)
+
+const (
+	ImageDefault = "https://raw.githubusercontent.com/cosmostation/cosmostation_token_resource/master/moniker/cosmoshub/%s.png"
 )
 
 // getValidators parses validators information and wrap into Precommit schema struct
@@ -26,6 +31,7 @@ func GetValidators(vals []types.Validator, validatorSets []types.ValidatorOfVali
 		_, decodeByte, _ := bech32.DecodeAndConvert(consensusAddress)
 		str := base64.StdEncoding.EncodeToString(decodeByte)
 
+		validator.Description.ImageUrl = fmt.Sprintf(ImageDefault, validator.OperatorAddress)
 		if validator.Description.ImageUrl == "" && validator.Description.Identity != "" {
 			validator.Description.ImageUrl = client.GetImageUrl(validator.Description.Identity)
 		}
