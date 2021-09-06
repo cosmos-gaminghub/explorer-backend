@@ -101,6 +101,7 @@ func (v Validator) String() string {
 }
 
 type Description struct {
+	ImageUrl        string `json:"image_url"`
 	Moniker         string `json:"moniker"`
 	Identity        string `json:"identity"`
 	Website         string `json:"website"`
