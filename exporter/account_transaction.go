@@ -3,6 +3,7 @@ package exporter
 import (
 	"strings"
 
+	"github.com/cosmos-gaminghub/explorer-backend/conf"
 	"github.com/cosmos-gaminghub/explorer-backend/orm"
 	"github.com/cosmos-gaminghub/explorer-backend/orm/document"
 	"github.com/cosmos-gaminghub/explorer-backend/schema"
@@ -26,10 +27,11 @@ func SaveAccountTransaction(validators []*schema.Validator, transactions []*sche
 
 func getListAccountAddres(messages string) []string {
 	var list []string
+	var addressPrefix = conf.Get().Db.AddresPrefix
 	for {
-		if strings.Contains(messages, "cosmos") {
-			index := strings.Index(messages, "cosmos")
-			address := utils.Convert("cosmos", messages[index:index+45])
+		if strings.Contains(messages, addressPrefix) {
+			index := strings.Index(messages, addressPrefix)
+			address := utils.Convert(addressPrefix, messages[index:index+45])
 			if address != "" {
 				list = append(list, address)
 			}

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/cosmos-gaminghub/explorer-backend/client"
+	"github.com/cosmos-gaminghub/explorer-backend/conf"
 	"github.com/cosmos-gaminghub/explorer-backend/logger"
 	"github.com/cosmos-gaminghub/explorer-backend/orm"
 	"github.com/cosmos-gaminghub/explorer-backend/orm/document"
@@ -80,7 +81,7 @@ func sync() error {
 	// Synchronizing blocks from the scratch will return 0 and will ingest accordingly.
 	// Skip the first block since it has no pre-commits
 	if dbHeight == 0 {
-		dbHeight = 5200790
+		dbHeight = int64(conf.Get().Db.SyncFromHeight)
 	}
 
 	// Ingest all blocks up to the latest height

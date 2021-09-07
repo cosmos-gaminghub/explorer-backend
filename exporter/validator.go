@@ -25,11 +25,16 @@ func GetValidators(vals []types.Validator, validatorSets []types.ValidatorOfVali
 		}
 		_, decodeByte, _ := bech32.DecodeAndConvert(consensusAddress)
 		str := base64.StdEncoding.EncodeToString(decodeByte)
+
+		if validator.Description.ImageUrl == "" && validator.Description.Identity != "" {
+			validator.Description.ImageUrl = client.GetImageUrl(validator.Description.Identity)
+		}
+
 		val := &schema.Validator{
 			OperatorAddr:    validator.OperatorAddress,
 			ConsensusAddres: consensusAddress,
 			ConsensusPubkey: validator.ConsensusPubkey.Key,
-			AccountAddr:     utils.Convert(conf.KeyPrefixAccAddr, validator.OperatorAddress),
+			AccountAddr:     utils.Convert(conf.Get().Db.AddresPrefix, validator.OperatorAddress),
 			Jailed:          validator.Jailed,
 			Status:          validator.Status,
 			Tokens:          tokens,
