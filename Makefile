@@ -1,6 +1,7 @@
 all: get_deps build
 
 get_deps:
+	rm -rf ./build
 	rm -rf ./vendor
 	rm -rf ./build
 	go mod download
@@ -8,3 +9,5 @@ get_deps:
 
 build:
 	go build -o build/explorer explorer.go
+	go build -o build/cron cron-exporter.go
+
