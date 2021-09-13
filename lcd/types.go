@@ -41,6 +41,7 @@ const (
 	UrlLookupIconsByKeySuffix                    = "https://keybase.io/_/api/1.0/user/lookup.json?fields=pictures&key_suffix=%s"
 	UrlAssetTokens                               = "%s/asset/tokens"
 	UrlAssetGateways                             = "%s/asset/gateways"
+	UrlValSigningInfo                            = "%s/cosmos/slashing/v1beta1/signing_infos/%s"
 
 	UrlProposal         = "%s/cosmos/gov/v1beta1/proposals"
 	UrlProposalDeposit  = "%s/cosmos/gov/v1beta1/proposals/%d/deposits"
@@ -821,4 +822,13 @@ type ProposalProposerResult struct {
 		ProposalId string `json:"proposal_id"`
 		Proposer   string `json:"proposer"`
 	} `json:"result"`
+}
+
+type ValSigningInfo struct {
+	Info struct {
+		Address           string `json:"address"`
+		StartHeight       string `json:"start_height"`
+		IndexOffset       string `json:"index_offset"`
+		MissedBlocksCount string `json:"missed_blocks_counter"`
+	} `json:"val_signing_info"`
 }

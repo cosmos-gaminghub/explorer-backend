@@ -235,7 +235,6 @@ func GetProposalProposer(proposalId int) (types.ProposalProposerResult, error) {
 		logger.Error("Get proposal proposer error", logger.String("err", err.Error()))
 	}
 
-	fmt.Println(string(resBytes))
 	var result types.ProposalProposerResult
 	if err := json.Unmarshal(resBytes, &result); err != nil {
 		logger.Error("Unmarshal proposal proposer error", logger.String("err", err.Error()))
@@ -266,4 +265,19 @@ func GetProposalVotes(proposalId int, offset int) ([]types.ProposalVote, error) 
 	}
 
 	return votes, nil
+}
+
+func GetValSigningInfo(consensusAddress string) (types.ValSigningInfo, error) {
+	url := fmt.Sprintf(lcd.UrlValSigningInfo, conf.Get().Hub.LcdUrl, consensusAddress)
+	resBytes, err := utils.Get(url)
+	if err != nil {
+		logger.Error("Get val signing info error address:"+consensusAddress, logger.String("err", err.Error()))
+	}
+
+	var result types.ValSigningInfo
+	if err := json.Unmarshal(resBytes, &result); err != nil {
+		logger.Error(fmt.Sprintf("Unmarshal val signing info error address: %s", consensusAddress), logger.String("err", err.Error()))
+	}
+
+	return result, nil
 }

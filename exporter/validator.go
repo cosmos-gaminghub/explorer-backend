@@ -3,6 +3,7 @@ package exporter
 import (
 	"encoding/base64"
 	"fmt"
+	"strconv"
 
 	"github.com/cosmos-gaminghub/explorer-backend/client"
 	"github.com/cosmos-gaminghub/explorer-backend/conf"
@@ -36,20 +37,29 @@ func GetValidators(vals []types.Validator, validatorSets []types.ValidatorOfVali
 			validator.Description.ImageUrl = client.GetImageUrl(validator.Description.Identity)
 		}
 
+		var missedBlockCount int64
+		if consensusAddress != "" {
+			valSigningInfo, err := client.GetValSigningInfo(consensusAddress)
+			if err == nil {
+				missedBlockCount, _ = strconv.ParseInt(valSigningInfo.Info.MissedBlocksCount, 10, 64)
+			}
+		}
+
 		val := &schema.Validator{
-			OperatorAddr:    validator.OperatorAddress,
-			ConsensusAddres: consensusAddress,
-			ConsensusPubkey: validator.ConsensusPubkey.Key,
-			AccountAddr:     utils.Convert(conf.Get().Db.AddresPrefix, validator.OperatorAddress),
-			Jailed:          validator.Jailed,
-			Status:          validator.Status,
-			Tokens:          tokens,
-			DelegatorShares: validator.DelegatorShares,
-			Description:     validator.Description,
-			UnbondingHeight: validator.UnbondingHeight,
-			UnbondingTime:   validator.UnbondingTime,
-			Commission:      validator.Commission,
-			ProposerAddr:    str,
+			OperatorAddr:     validator.OperatorAddress,
+			ConsensusAddres:  consensusAddress,
+			ConsensusPubkey:  validator.ConsensusPubkey.Key,
+			AccountAddr:      utils.Convert(conf.Get().Db.AddresPrefix, validator.OperatorAddress),
+			Jailed:           validator.Jailed,
+			Status:           validator.Status,
+			Tokens:           tokens,
+			DelegatorShares:  validator.DelegatorShares,
+			Description:      validator.Description,
+			UnbondingHeight:  validator.UnbondingHeight,
+			UnbondingTime:    validator.UnbondingTime,
+			Commission:       validator.Commission,
+			ProposerAddr:     str,
+			TotalMissedBlock: missedBlockCount,
 		}
 		validators = append(validators, val)
 	}
