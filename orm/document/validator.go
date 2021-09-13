@@ -28,20 +28,21 @@ const (
 )
 
 type Validator struct {
-	OperatorAddr    string            `json:"operator_address"`
-	ConsensusPubkey string            `json:"consensus_pubkey"`
-	ConsensusAddres string            `json:"consensus_address"`
-	AccountAddr     string            `json:"account_address"`
-	Jailed          bool              `json:"jailed"`
-	Status          string            `json:"status"`
-	Tokens          int64             `json:"tokens"`
-	DelegatorShares string            `json:"delegator_shares"`
-	Description     types.Description `json:"description"`
-	UnbondingHeight string            `json:"unbonding_height"`
-	UnbondingTime   time.Time         `json:"unbonding_time"`
-	Commission      types.Commission  `json:"commission"`
-	ProposerAddr    string            `json:"proposer_addr"`
-	Icons           string            `json:"icons"`
+	OperatorAddr     string            `json:"operator_address"`
+	ConsensusPubkey  string            `json:"consensus_pubkey"`
+	ConsensusAddres  string            `json:"consensus_address"`
+	AccountAddr      string            `json:"account_address"`
+	Jailed           bool              `json:"jailed"`
+	Status           string            `json:"status"`
+	Tokens           int64             `json:"tokens"`
+	DelegatorShares  string            `json:"delegator_shares"`
+	Description      types.Description `json:"description"`
+	UnbondingHeight  string            `json:"unbonding_height"`
+	UnbondingTime    time.Time         `json:"unbonding_time"`
+	Commission       types.Commission  `json:"commission"`
+	ProposerAddr     string            `json:"proposer_addr"`
+	Icons            string            `json:"icons"`
+	TotalMissedBlock int64             `bson:"total_missed_block"`
 }
 
 func (v Validator) GetValidatorList() ([]Validator, error) {
