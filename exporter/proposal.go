@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/cosmos-gaminghub/explorer-backend/client"
 	types "github.com/cosmos-gaminghub/explorer-backend/lcd"
 	"github.com/cosmos-gaminghub/explorer-backend/orm"
 	"github.com/cosmos-gaminghub/explorer-backend/orm/document"
@@ -27,12 +28,13 @@ func GetProposals(ps types.ProposalResult) (proposals []*schema.Proposal, err er
 			fmt.Println(err.Error())
 			continue
 		}
+		proposalTally, _ := client.GetProposalTally(proposalId)
 		pro := &schema.Proposal{
 			ProposalId:       proposalId,
 			ProposalStatus:   proposal.Status,
 			Content:          proposal.Content,
 			SubmitTime:       proposal.SubmitTime,
-			FinalTallyResult: proposal.FinalTallyResult,
+			FinalTallyResult: proposalTally.Tally,
 			VotingEndTime:    proposal.VotingEndTime,
 			VotingStartTime:  proposal.VotingStartTime,
 			DepositEndTime:   proposal.DepositEndTime,

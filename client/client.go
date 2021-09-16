@@ -281,3 +281,18 @@ func GetValSigningInfo(consensusAddress string) (types.ValSigningInfo, error) {
 
 	return result, nil
 }
+
+func GetProposalTally(id int) (types.PropsalTally, error) {
+	url := fmt.Sprintf(lcd.UrlProposalTally, conf.Get().Hub.LcdUrl, id)
+	resBytes, err := utils.Get(url)
+	if err != nil {
+		logger.Error(fmt.Sprintf("Get proposal tally error proposal: %d", id), logger.String("err", err.Error()))
+	}
+
+	var result types.PropsalTally
+	if err := json.Unmarshal(resBytes, &result); err != nil {
+		logger.Error(fmt.Sprintf("Unmarshal proposal tally error proposal: %d", id), logger.String("err", err.Error()))
+	}
+
+	return result, nil
+}

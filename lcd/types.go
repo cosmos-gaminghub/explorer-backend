@@ -47,6 +47,7 @@ const (
 	UrlProposalDeposit  = "%s/cosmos/gov/v1beta1/proposals/%d/deposits"
 	UrlProposalProposer = "%s/gov/proposals/%d/proposer"
 	UrlProposalVoters   = "%s/cosmos/gov/v1beta1/proposals/%d/votes?pagination.offset=%d"
+	UrlProposalTally    = "%s/cosmos/gov/v1beta1/proposals/%d/tally"
 
 	DefaultValidatorSetLimit = 100
 	DefaultValidatorLimit    = 200
@@ -783,7 +784,7 @@ type ProposalFinalTallyResult struct {
 	Yes        string `json:"yes"`
 	Abstain    string `json:"abstain"`
 	No         string `json:"no"`
-	NoWithVeto string `bson:"no_with_veto" json:"no_with_veto"`
+	NoWithVeto string `json:"no_with_veto"`
 }
 
 type ProposalDepositResult struct {
@@ -831,4 +832,8 @@ type ValSigningInfo struct {
 		IndexOffset       string `json:"index_offset"`
 		MissedBlocksCount string `json:"missed_blocks_counter"`
 	} `json:"val_signing_info"`
+}
+
+type PropsalTally struct {
+	Tally ProposalFinalTallyResult `json:"tally"`
 }
