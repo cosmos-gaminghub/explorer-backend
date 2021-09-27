@@ -781,10 +781,10 @@ type ProposalContent struct {
 }
 
 type ProposalFinalTallyResult struct {
-	Yes        string `json:"yes"`
-	Abstain    string `json:"abstain"`
-	No         string `json:"no"`
-	NoWithVeto string `json:"no_with_veto"`
+	Yes        string `bson:"yes" json:"yes"`
+	Abstain    string `bson:"abstain" json:"abstain"`
+	No         string `bson:"no" json:"no"`
+	NoWithVeto string `bson:"no_with_veto" json:"no_with_veto"`
 }
 
 type ProposalDepositResult struct {
