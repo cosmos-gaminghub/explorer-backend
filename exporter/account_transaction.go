@@ -32,7 +32,8 @@ func getListAccountAddres(messages string) []string {
 	for {
 		if strings.Contains(messages, addressPrefix) {
 			index := strings.Index(messages, addressPrefix)
-			address := utils.Convert(addressPrefix, messages[index:length])
+
+			address := utils.Convert(addressPrefix, messages[index:index+length])
 			if address != "" {
 				list = append(list, address)
 			}
