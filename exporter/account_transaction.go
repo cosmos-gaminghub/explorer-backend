@@ -28,10 +28,11 @@ func SaveAccountTransaction(validators []*schema.Validator, transactions []*sche
 func getListAccountAddres(messages string) []string {
 	var list []string
 	var addressPrefix = conf.Get().Db.AddresPrefix
+	var length = len(addressPrefix) + 39 // length off account address
 	for {
 		if strings.Contains(messages, addressPrefix) {
 			index := strings.Index(messages, addressPrefix)
-			address := utils.Convert(addressPrefix, messages[index:index+45])
+			address := utils.Convert(addressPrefix, messages[index:length])
 			if address != "" {
 				list = append(list, address)
 			}
