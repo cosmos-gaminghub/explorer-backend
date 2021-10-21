@@ -37,7 +37,7 @@ func getListAccountAddres(messages string) []string {
 			if address != "" {
 				list = append(list, address)
 			}
-			messages = messages[index+45 : len(messages)-1]
+			messages = messages[index+length : len(messages)-1]
 		} else {
 			break
 		}
