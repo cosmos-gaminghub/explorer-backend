@@ -28,26 +28,26 @@ const (
 )
 
 type Validator struct {
-	OperatorAddr     string            `json:"operator_address"`
-	ConsensusPubkey  string            `json:"consensus_pubkey"`
-	ConsensusAddres  string            `json:"consensus_address"`
-	AccountAddr      string            `json:"account_address"`
-	Jailed           bool              `json:"jailed"`
-	Status           string            `json:"status"`
-	Tokens           int64             `json:"tokens"`
-	DelegatorShares  string            `json:"delegator_shares"`
-	Description      types.Description `json:"description"`
-	UnbondingHeight  string            `json:"unbonding_height"`
-	UnbondingTime    time.Time         `json:"unbonding_time"`
-	Commission       types.Commission  `json:"commission"`
-	ProposerAddr     string            `json:"proposer_addr"`
-	Icons            string            `json:"icons"`
-	TotalMissedBlock int64             `json:"total_missed_block"`
+	OperatorAddr     string            `bson:"operator_address"`
+	ConsensusPubkey  string            `bson:"consensus_pubkey"`
+	ConsensusAddress string            `bson:"consensus_address"`
+	AccountAddr      string            `bson:"account_address"`
+	Jailed           bool              `bson:"jailed"`
+	Status           string            `bson:"status"`
+	Tokens           int64             `bson:"tokens"`
+	DelegatorShares  string            `bson:"delegator_shares"`
+	Description      types.Description `bson:"description"`
+	UnbondingHeight  string            `bson:"unbonding_height"`
+	UnbondingTime    time.Time         `bson:"unbonding_time"`
+	Commission       types.Commission  `bson:"commission"`
+	ProposerAddr     string            `bson:"proposer_addr"`
+	Icons            string            `bson:"icons"`
+	TotalMissedBlock int64             `bson:"total_missed_block"`
 }
 
 func (v Validator) GetValidatorList() ([]Validator, error) {
 	var validatorsDocArr []Validator
-	var selector = bson.M{"description.moniker": 1, "operator_address": 1, "consensus_pubkey": 1, "proposer_addr": 1}
+	var selector = bson.M{"consensus_address": 1}
 	err := queryAll(CollectionNmValidator, selector, nil, "", 0, &validatorsDocArr)
 
 	return validatorsDocArr, err
