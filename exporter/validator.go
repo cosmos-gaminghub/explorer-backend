@@ -27,33 +27,24 @@ func GetValidators(vals []types.Validator, validatorSets []types.ValidatorOfVali
 		_, decodeByte, _ := bech32.DecodeAndConvert(consensusAddress)
 		str := base64.StdEncoding.EncodeToString(decodeByte)
 
-		if validator.Description.ImageUrl == "" && validator.Description.Identity != "" {
-			validator.Description.ImageUrl = client.GetImageUrl(validator.Description.Identity)
-		}
-
-		var missedBlockCount int64
-		if consensusAddress != "" {
-			valSigningInfo, err := client.GetValSigningInfo(consensusAddress)
-			if err == nil {
-				missedBlockCount, _ = strconv.ParseInt(valSigningInfo.Info.MissedBlocksCount, 10, 64)
-			}
-		}
+		// if validator.Description.ImageUrl == "" && validator.Description.Identity != "" {
+		// 	validator.Description.ImageUrl = client.GetImageUrl(validator.Description.Identity)
+		// }
 
 		val := &schema.Validator{
-			OperatorAddr:     validator.OperatorAddress,
-			ConsensusAddres:  consensusAddress,
-			ConsensusPubkey:  validator.ConsensusPubkey.Key,
-			AccountAddr:      utils.Convert(conf.Get().Db.AddresPrefix, validator.OperatorAddress),
-			Jailed:           validator.Jailed,
-			Status:           validator.Status,
-			Tokens:           tokens,
-			DelegatorShares:  validator.DelegatorShares,
-			Description:      validator.Description,
-			UnbondingHeight:  validator.UnbondingHeight,
-			UnbondingTime:    validator.UnbondingTime,
-			Commission:       validator.Commission,
-			ProposerAddr:     str,
-			TotalMissedBlock: missedBlockCount,
+			OperatorAddr:    validator.OperatorAddress,
+			ConsensusAddres: consensusAddress,
+			ConsensusPubkey: validator.ConsensusPubkey.Key,
+			AccountAddr:     utils.Convert(conf.Get().Db.AddresPrefix, validator.OperatorAddress),
+			Jailed:          validator.Jailed,
+			Status:          validator.Status,
+			Tokens:          tokens,
+			DelegatorShares: validator.DelegatorShares,
+			Description:     validator.Description,
+			UnbondingHeight: validator.UnbondingHeight,
+			UnbondingTime:   validator.UnbondingTime,
+			Commission:      validator.Commission,
+			ProposerAddr:    str,
 		}
 		validators = append(validators, val)
 	}
@@ -65,4 +56,17 @@ func SaveValidator(validator schema.Validator) (interface{}, error) {
 	selector := bson.M{document.ValidatorFieldOperatorAddress: validator.OperatorAddr}
 
 	return orm.Upsert(document.CollectionNmValidator, selector, validator)
+}
+
+func saveTotalMissedBlock(validators []document.Validator) {
+	for _, validator := range validators {
+		var missedBlockCount int64
+		if validator.ConsensusAddress != "" {
+			valSigningInfo, err := client.GetValSigningInfo(validator.ConsensusAddress)
+			if err == nil {
+				missedBlockCount, _ = strconv.ParseInt(valSigningInfo.Info.MissedBlocksCount, 10, 64)
+			}
+		}
+		orm.Update(document.CollectionNmValidator, bson.M{"consensus_address": validator.ConsensusAddress}, bson.M{"$set": bson.M{"total_missed_block": missedBlockCount}})
+	}
 }

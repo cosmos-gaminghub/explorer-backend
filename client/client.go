@@ -82,7 +82,7 @@ func GetValidatorSet(height int64, offset int64) ([]types.ValidatorOfValidatorSe
 	}
 
 	var result types.ValidatorSet
-	validators := make([]types.ValidatorOfValidatorSet, 0, 125)
+	validators := make([]types.ValidatorOfValidatorSet, 0, lcd.DefaultValidatorSetLimit)
 	if err := json.Unmarshal(resBytes, &result); err != nil {
 		logger.Error(fmt.Sprintf("Unmarshal validator set error for height %d", height), logger.String("err", err.Error()))
 	}
