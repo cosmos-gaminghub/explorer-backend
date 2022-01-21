@@ -2,7 +2,7 @@
 Blockchain exporter for the [CosmosSDK](https://github.com/cosmos/cosmos-sdk) based Blockchain(ex [gaia](https://github.com/cosmos/gaia)). This backend server can be applied to any cosmosSDK based blockchain to sync as mongoDB collections.
 
 **Prerequisites**
-* go1.16.0+
+* go1.17.0+
 * mongoDB 4.4.0+
 * docker (for local usage)
 
@@ -10,7 +10,9 @@ Blockchain exporter for the [CosmosSDK](https://github.com/cosmos/cosmos-sdk) ba
 - set up mongoDB
 
 - build source
+
 Just run exporter binary after building source.
+
 ```bash
 git clone https://github.com/cosmos-gaminghub/explorer-backend.git
 cd explorer-backend
