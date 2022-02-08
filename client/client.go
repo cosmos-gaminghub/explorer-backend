@@ -54,20 +54,9 @@ func GetTxs(height int64) (txs types.TxResult, err error) {
 		return txs, err
 	}
 
-	result := make(map[string][]map[string]map[string]interface{})
-	json.Unmarshal(resBytes, &result)
-
 	if err := json.Unmarshal(resBytes, &txs); err != nil {
 		logger.Error(fmt.Sprintf("Unmarshal Tx error for height %d", height), logger.String("err", err.Error()))
 	}
-
-	if len(txs.TxResponse) > 0 {
-		for index := range txs.TxResponse {
-			mJson, _ := json.Marshal(result["txs"][index]["body"]["messages"])
-			txs.Txs[index].Body.BodyMessage = string(mJson)
-		}
-	}
-
 	return txs, nil
 }
 

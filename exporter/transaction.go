@@ -1,6 +1,7 @@
 package exporter
 
 import (
+	"encoding/json"
 	"strconv"
 
 	types "github.com/cosmos-gaminghub/explorer-backend/lcd"
@@ -18,6 +19,7 @@ func GetTxs(txs types.TxResult, block schema.Block) (transactions []*schema.Tran
 		height, _ := strconv.ParseInt(tx.Height, 10, 64)
 		gasWanted, _ := strconv.ParseInt(tx.GasWanted, 10, 64)
 		gasUsed, _ := strconv.ParseInt(tx.GasUsed, 10, 64)
+		messages, _ := json.Marshal(txs.Txs[index].Body.BodyMessage)
 
 		t := schema.NewTransaction(schema.Transaction{
 			Height:     height,
@@ -30,7 +32,7 @@ func GetTxs(txs types.TxResult, block schema.Block) (transactions []*schema.Tran
 			Logs:       tx.Logs,
 			Fee:        txs.Txs[index].AuthInfo.FeeInfo,
 			Signatures: txs.Txs[index].Signatures,
-			Messages:   txs.Txs[index].Body.BodyMessage,
+			Messages:   string(messages),
 			RawLog:     tx.RawLog,
 		})
 		transactions = append(transactions, t)
