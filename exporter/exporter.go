@@ -12,6 +12,8 @@ import (
 	"github.com/cosmos-gaminghub/explorer-backend/orm/document"
 	"github.com/cosmos-gaminghub/explorer-backend/schema"
 	"github.com/pkg/errors"
+
+	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 )
 
 var (
@@ -22,13 +24,26 @@ var (
 	Commit = ""
 )
 
+var clientHTTP *rpchttp.HTTP
+
 // Exporter wraps the required params to export blockchain
 type Exporter struct {
+	clientHTTP *rpchttp.HTTP
 }
 
 // Start starts to synchronize Chain data.
 func Start() error {
 	fmt.Println("Starting Chain Exporter...")
+
+	var (
+		err error
+	)
+
+	clientHTTP, err = rpchttp.New(conf.Get().Hub.RpcUrl, "/websocket")
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
 	go func() {
 		for {
 			fmt.Println("start - sync blockchain")
@@ -138,6 +153,8 @@ func process(height int64) error {
 	}
 	orm.Save(document.CollectionNmBlock, resultBlock)
 
+	SaveMissedBlock(clientHTTP, height, resultBlock)
+
 	resultTxs, err := GetTxs(txs, *resultBlock)
 	if err != nil {
 		logger.Error("failed to get txs:", logger.String("err", err.Error()))
@@ -150,8 +167,6 @@ func process(height int64) error {
 	if err != nil {
 		logger.Error("failed to get validator set:", logger.String("err", err.Error()))
 	}
-
-	SaveMissedBlock(vals, validatorSets, block)
 
 	resultValidators, err := GetValidators(vals, validatorSets)
 	if err != nil {
