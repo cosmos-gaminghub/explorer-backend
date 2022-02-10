@@ -68,18 +68,6 @@ func Start() error {
 		}
 	}()
 
-	go func() {
-		for {
-			fmt.Println("start - sync total missed block for validator")
-			err := syncTotalMissedBlock()
-			if err != nil {
-				fmt.Printf("error - sync total missed block for validator: %v\n", err)
-			}
-			fmt.Println("finish - sync total missed block for validator")
-			time.Sleep(3600 * time.Second)
-		}
-	}()
-
 	for {
 		select {}
 	}
@@ -209,15 +197,6 @@ func syncProposal() error {
 		fmt.Printf("synced proposal %d \n", proposal.ProposalId)
 	}
 
-	return nil
-}
-
-func syncTotalMissedBlock() error {
-	validators, err := document.Validator{}.GetValidatorList()
-	if err != nil {
-		return nil
-	}
-	saveTotalMissedBlock(validators)
 	return nil
 }
 

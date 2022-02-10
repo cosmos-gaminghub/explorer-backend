@@ -42,7 +42,6 @@ type Validator struct {
 	Commission       types.Commission  `bson:"commission"`
 	ProposerAddr     string            `bson:"proposer_addr"`
 	Icons            string            `bson:"icons"`
-	TotalMissedBlock int64             `bson:"total_missed_block"`
 }
 
 func (v Validator) GetValidatorList() ([]Validator, error) {
