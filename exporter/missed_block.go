@@ -36,7 +36,7 @@ func SaveMissedBlock(clientHTTP *rpchttp.HTTP, height int64, block *schema.Block
 				if ak == "height" {
 					eventHeight = bytes.NewBuffer(v.GetValue()).String()
 					height, _ = strconv.ParseInt(eventHeight, 10, 64)
-					if err == nil {
+					if err != nil {
 						logger.Error(fmt.Sprintf("[Missed block] failed to parse string %s to int64", eventHeight))
 					}
 				}
