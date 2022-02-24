@@ -19,6 +19,7 @@ func SaveMissedBlock(clientHTTP *rpchttp.HTTP, height int64, block *schema.Block
 		fmt.Println(err.Error())
 	}
 
+	//if result != nil {
 	for _, event := range result.BeginBlockEvents {
 		if event.Type == "liveness" {
 			var consensusAddress, eventHeight string
@@ -48,4 +49,6 @@ func SaveMissedBlock(clientHTTP *rpchttp.HTTP, height int64, block *schema.Block
 			}
 		}
 	}
+	//}
+
 }
