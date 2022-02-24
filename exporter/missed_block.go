@@ -6,11 +6,9 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/cosmos-gaminghub/explorer-backend/conf"
 	"github.com/cosmos-gaminghub/explorer-backend/logger"
 	"github.com/cosmos-gaminghub/explorer-backend/orm"
 	"github.com/cosmos-gaminghub/explorer-backend/schema"
-	"github.com/cosmos-gaminghub/explorer-backend/utils"
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 )
 
@@ -20,17 +18,16 @@ func SaveMissedBlock(clientHTTP *rpchttp.HTTP, height int64, block *schema.Block
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	var addressPrefix = conf.Get().Db.AddresPrefix
+
 	for _, event := range result.BeginBlockEvents {
 		if event.Type == "liveness" {
-			var consensusAddress, eventHeight, operatorAddress string
+			var consensusAddress, eventHeight string
 			var insertHeight int64
 			for _, v := range event.GetAttributes() {
 
 				var ak = bytes.NewBuffer(v.GetKey()).String()
 				if ak == "address" {
 					consensusAddress = bytes.NewBuffer(v.GetValue()).String()
-					operatorAddress = utils.Convert(addressPrefix+"valoper", consensusAddress)
 				}
 
 				if ak == "height" {
@@ -42,9 +39,9 @@ func SaveMissedBlock(clientHTTP *rpchttp.HTTP, height int64, block *schema.Block
 				}
 				if insertHeight > 0 {
 					b := schema.NewMissedBlock(schema.MissedBlock{
-						Height:       insertHeight,
-						OperatorAddr: operatorAddress,
-						Timestamp:    block.Timestamp,
+						Height:           insertHeight,
+						ConsensusAddress: consensusAddress,
+						Timestamp:        block.Timestamp,
 					})
 					orm.Save("missed_block", b)
 				}
