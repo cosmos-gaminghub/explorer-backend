@@ -24,7 +24,7 @@ func SaveMissedBlock(clientHTTP *rpchttp.HTTP, height int64, block *schema.Block
 	for _, event := range result.BeginBlockEvents {
 		if event.Type == "liveness" {
 			var consensusAddress, eventHeight, operatorAddress string
-			var height int64
+			var insertHeight int64
 			for _, v := range event.GetAttributes() {
 
 				var ak = bytes.NewBuffer(v.GetKey()).String()
@@ -35,17 +35,19 @@ func SaveMissedBlock(clientHTTP *rpchttp.HTTP, height int64, block *schema.Block
 
 				if ak == "height" {
 					eventHeight = bytes.NewBuffer(v.GetValue()).String()
-					height, _ = strconv.ParseInt(eventHeight, 10, 64)
+					insertHeight, _ = strconv.ParseInt(eventHeight, 10, 64)
 					if err != nil {
 						logger.Error(fmt.Sprintf("[Missed block] failed to parse string %s to int64", eventHeight))
 					}
 				}
-				b := schema.NewMissedBlock(schema.MissedBlock{
-					Height:       height,
-					OperatorAddr: operatorAddress,
-					Timestamp:    block.Timestamp,
-				})
-				orm.Save("missed_block", b)
+				if insertHeight > 0 {
+					b := schema.NewMissedBlock(schema.MissedBlock{
+						Height:       insertHeight,
+						OperatorAddr: operatorAddress,
+						Timestamp:    block.Timestamp,
+					})
+					orm.Save("missed_block", b)
+				}
 			}
 		}
 	}
