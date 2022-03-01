@@ -573,8 +573,8 @@ type BlockCoinFlowVo struct {
 type Tx struct {
 	Type string `json:"@type"`
 	Body struct {
-		Messages []TxMessages `json:"messages"`
-		Memo     string       `json:"memo"`
+		Messages interface{} `json:"messages"`
+		Memo     string      `json:"memo"`
 	} `json:"body"`
 	AuthInfo   TxAuthInfo `json:"auth_info"`
 	Signatures []string   `json:"signatures"`
@@ -659,8 +659,8 @@ type TxResult struct {
 	Txs []struct {
 		AuthInfo TxAuthInfo `json:"auth_info"`
 		Body     struct {
-			BodyMessage string `json:"messages"`
-			Memo        string `json:"memo"`
+			BodyMessage []interface{} `json:"messages"`
+			Memo        string        `json:"memo"`
 		} `json:"body"`
 		Signatures []string `json:"signatures"`
 	} `json:"txs"`

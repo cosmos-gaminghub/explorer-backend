@@ -2,7 +2,6 @@ package exporter
 
 import (
 	"encoding/base64"
-	"strconv"
 
 	"github.com/cosmos-gaminghub/explorer-backend/client"
 	"github.com/cosmos-gaminghub/explorer-backend/conf"
@@ -56,17 +55,4 @@ func SaveValidator(validator schema.Validator) (interface{}, error) {
 	selector := bson.M{document.ValidatorFieldOperatorAddress: validator.OperatorAddr}
 
 	return orm.Upsert(document.CollectionNmValidator, selector, validator)
-}
-
-func saveTotalMissedBlock(validators []document.Validator) {
-	for _, validator := range validators {
-		var missedBlockCount int64
-		if validator.ConsensusAddress != "" {
-			valSigningInfo, err := client.GetValSigningInfo(validator.ConsensusAddress)
-			if err == nil {
-				missedBlockCount, _ = strconv.ParseInt(valSigningInfo.Info.MissedBlocksCount, 10, 64)
-			}
-		}
-		orm.Update(document.CollectionNmValidator, bson.M{"consensus_address": validator.ConsensusAddress}, bson.M{"$set": bson.M{"total_missed_block": missedBlockCount}})
-	}
 }
