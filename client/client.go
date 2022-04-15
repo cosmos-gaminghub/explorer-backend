@@ -285,3 +285,63 @@ func GetProposalTally(id int) (types.PropsalTally, error) {
 
 	return result, nil
 }
+
+func GetContractState(contractAddress string) (types.ContractState, error) {
+	url := fmt.Sprintf(lcd.UrlWasmContractState, conf.Get().Hub.LcdUrl, contractAddress)
+	resBytes, err := utils.Get(url)
+	if err != nil {
+		logger.Error(fmt.Sprintf("Get wasm contract address error: %s", contractAddress), logger.String("err", err.Error()))
+	}
+
+	var result types.ContractState
+	if err := json.Unmarshal(resBytes, &result); err != nil {
+		logger.Error(fmt.Sprintf("Unmarshal wasm contract address error: %s", contractAddress), logger.String("err", err.Error()))
+	}
+
+	return result, nil
+}
+
+func GetListWasmCode() (types.WasmCode, error) {
+	url := fmt.Sprintf(lcd.UrlWasmCode, conf.Get().Hub.LcdUrl)
+	resBytes, err := utils.Get(url)
+	if err != nil {
+		logger.Error(fmt.Sprintf("Get wasm code error"), logger.String("err", err.Error()))
+	}
+
+	var result types.WasmCode
+	if err := json.Unmarshal(resBytes, &result); err != nil {
+		logger.Error(fmt.Sprintf("Unmarshal wasm code"), logger.String("err", err.Error()))
+	}
+
+	return result, nil
+}
+
+func GetListWasmCodeContracts(codeId int) (types.WasmCodeContracts, error) {
+	url := fmt.Sprintf(lcd.UrlWasmCodeContracts, conf.Get().Hub.LcdUrl, codeId)
+	resBytes, err := utils.Get(url)
+	if err != nil {
+		logger.Error(fmt.Sprintf("Get wasm code contracts error %d", codeId), logger.String("err", err.Error()))
+	}
+
+	var result types.WasmCodeContracts
+	if err := json.Unmarshal(resBytes, &result); err != nil {
+		logger.Error(fmt.Sprintf("Unmarshal wasm code contracts error %d", codeId), logger.String("err", err.Error()))
+	}
+
+	return result, nil
+}
+
+func GetContract(contractAddress string) (types.WasmContract, error) {
+	url := fmt.Sprintf(lcd.UrlWasmContract, conf.Get().Hub.LcdUrl, contractAddress)
+	resBytes, err := utils.Get(url)
+	if err != nil {
+		logger.Error(fmt.Sprintf("Get wasm contract error %s", contractAddress), logger.String("err", err.Error()))
+	}
+
+	var result types.WasmContract
+	if err := json.Unmarshal(resBytes, &result); err != nil {
+		logger.Error(fmt.Sprintf("Unmarshal wasm contracts error %s", contractAddress), logger.String("err", err.Error()))
+	}
+
+	return result, nil
+}
