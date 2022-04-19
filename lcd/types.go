@@ -851,7 +851,7 @@ type ContractState struct {
 type WasmCode struct {
 	Height string `json:"height"`
 	Result []struct {
-		Id       int64  `json:"id"`
+		Id       int    `json:"id"`
 		Creator  string `json:"creator"`
 		DataHash string `json:"data_hash"`
 	}

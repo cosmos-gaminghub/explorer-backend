@@ -3,6 +3,7 @@ package exporter
 import (
 	"fmt"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/cosmos-gaminghub/explorer-backend/client"
@@ -44,27 +45,39 @@ func Start() error {
 		fmt.Println(err.Error())
 	}
 
-	go func() {
-		for {
-			fmt.Println("start - sync blockchain")
-			err := sync()
-			if err != nil {
-				fmt.Printf("error - sync blockchain: %v\n", err)
-			}
-			fmt.Println("finish - sync blockchain")
-			time.Sleep(time.Second)
-		}
-	}()
+	// go func() {
+	// 	for {
+	// 		fmt.Println("start - sync blockchain")
+	// 		err := sync()
+	// 		if err != nil {
+	// 			fmt.Printf("error - sync blockchain: %v\n", err)
+	// 		}
+	// 		fmt.Println("finish - sync blockchain")
+	// 		time.Sleep(time.Second)
+	// 	}
+	// }()
+
+	// go func() {
+	// 	for {
+	// 		fmt.Println("start - sync proposal")
+	// 		err := syncProposal()
+	// 		if err != nil {
+	// 			fmt.Printf("error - sync proposal blockchain: %v\n", err)
+	// 		}
+	// 		fmt.Println("finish - sync proposal blockchain")
+	// 		time.Sleep(3600 * time.Second)
+	// 	}
+	// }()
 
 	go func() {
 		for {
-			fmt.Println("start - sync proposal")
-			err := syncProposal()
+			fmt.Println("start - sync codes")
+			err := syncCode()
 			if err != nil {
-				fmt.Printf("error - sync proposal blockchain: %v\n", err)
+				fmt.Printf("error - sync code blockchain: %v\n", err)
 			}
-			fmt.Println("finish - sync proposal blockchain")
-			time.Sleep(3600 * time.Second)
+			fmt.Println("finish - sync code blockchain")
+			time.Sleep(3600 * 24 * time.Second)
 		}
 	}()
 
@@ -84,7 +97,6 @@ func sync() error {
 	}
 
 	dbHeight := block.Height
-	fmt.Println(dbHeight)
 	if dbHeight == -1 {
 		log.Fatal(errors.Wrap(err, "failed to query the latest block height saved in database"))
 	}
@@ -232,5 +244,51 @@ func processProposal(proposal schema.Proposal) error {
 	proposal.Proposer = proposer.Result.Proposer
 	SaveProposal(proposal)
 
+	return nil
+}
+
+func syncCode() error {
+	codes, err := client.GetListWasmCode()
+	if err != nil {
+		return nil
+	}
+
+	resultCode := GetCodes(codes)
+	if err != nil {
+		return fmt.Errorf("failed to get codes: %s", err)
+	}
+	for _, code := range resultCode {
+		err = processCode(code)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("synced code %d \n", code.CodeId)
+	}
+
+	return nil
+}
+
+func processCode(code *schema.Code) error {
+	contractResult, _ := client.GetListWasmCodeContracts(code.CodeId)
+
+	height, err := strconv.ParseInt(contractResult.Height, 10, 64)
+	if err != nil {
+		logger.Error(fmt.Sprintf("failed to parse height %s for code %d:", contractResult.Height, code.CodeId))
+		return err
+	}
+	block, err := client.GetBlock(height)
+	if err != nil {
+		logger.Error("failed to query block using rpc client:", logger.String("err", err.Error()))
+	}
+	fmt.Println(block)
+
+	code.SetInstantiateCount(len(contractResult.ContractAddress)).
+		SetCreatedAt(block.Block.Header.Time)
+
+	_, err = SaveCode(code)
+	if err != nil {
+		logger.Error(fmt.Sprintf("failed to save code %d:", code.CodeId))
+		return err
+	}
 	return nil
 }
