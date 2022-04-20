@@ -53,8 +53,9 @@ func saveWasmInfo(logs []types.Log, txhash string, time time.Time) (result inter
 			case "execute":
 				{
 					for _, attribute := range event.Attributes {
-						if attribute.Key == "execute" {
+						if attribute.Key == "_contract_address" {
 							SaveContractExecuteInfo(attribute.Value, time)
+							break
 						}
 					}
 					break
@@ -64,7 +65,7 @@ func saveWasmInfo(logs []types.Log, txhash string, time time.Time) (result inter
 					for _, attribute := range event.Attributes {
 						var contractAddress string
 						var admin string
-						if attribute.Key == "_contract_addr" {
+						if attribute.Key == "_contract_address" {
 							contractAddress = attribute.Value
 						}
 
@@ -80,7 +81,7 @@ func saveWasmInfo(logs []types.Log, txhash string, time time.Time) (result inter
 					for _, attribute := range event.Attributes {
 						var contractAddress string
 						var admin string
-						if attribute.Key == "_contract_addr" {
+						if attribute.Key == "_contract_address" {
 							contractAddress = attribute.Value
 						}
 						SaveContractAdminInfo(contractAddress, admin)
