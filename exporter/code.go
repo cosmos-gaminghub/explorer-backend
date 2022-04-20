@@ -8,7 +8,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-// getValidators parses validators information and wrap into Precommit schema struct
+// GetCodes parses codes information and wrap into Precommit schema struct
 func GetCodes(wc types.WasmCode) (codes []*schema.Code) {
 	for _, result := range wc.Result {
 		code := schema.NewCode().
