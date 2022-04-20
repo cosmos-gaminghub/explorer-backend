@@ -3,6 +3,7 @@ package document
 import (
 	"time"
 
+	"github.com/cosmos-gaminghub/explorer-backend/schema"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -10,7 +11,7 @@ import (
 const (
 	CollectionCode = "codes"
 
-	CodeId = "code_id"
+	CodeIdField = "code_id"
 )
 
 type Code struct {
@@ -37,10 +38,20 @@ func (d Code) PkKvPair() map[string]interface{} {
 func (d Code) EnsureIndexes() []mgo.Index {
 	indexes := []mgo.Index{
 		{
-			Key:        []string{CodeId},
+			Key:        []string{CodeIdField},
 			Background: true,
 		},
 	}
 
 	return indexes
+}
+
+func (_ Code) FindByCodeId(codeId int) (schema.Code, error) {
+	var code schema.Code
+	condition := bson.M{
+		CodeIdField: codeId,
+	}
+
+	err := queryOne(CollectionContract, nil, condition, &code)
+	return code, err
 }

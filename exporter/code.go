@@ -1,7 +1,10 @@
 package exporter
 
 import (
+	"time"
+
 	types "github.com/cosmos-gaminghub/explorer-backend/lcd"
+	"github.com/cosmos-gaminghub/explorer-backend/logger"
 	"github.com/cosmos-gaminghub/explorer-backend/orm"
 	"github.com/cosmos-gaminghub/explorer-backend/orm/document"
 	"github.com/cosmos-gaminghub/explorer-backend/schema"
@@ -23,6 +26,18 @@ func GetCodes(wc types.WasmCode) (codes []*schema.Code) {
 }
 
 func SaveCode(t *schema.Code) (interface{}, error) {
-	selector := bson.M{document.CodeId: t.CodeId}
+	selector := bson.M{document.CodeIdField: t.CodeId}
 	return orm.Upsert(document.CollectionCode, selector, t)
+}
+
+func SaveCodeInfo(codeId int, txhash string, instantiatedAt time.Time) (interface{}, error) {
+	code, err := document.Code{}.FindByCodeId(codeId)
+	if err != nil {
+		logger.Error("failed to get code from db:", logger.String("err", err.Error()))
+	}
+	instantiateCount := code.InstantiateCount + 1
+	code.SetTxhash(txhash).
+		SetInstantiateCount(instantiateCount).
+		SetCreatedAt(instantiatedAt)
+	return SaveCode(&code)
 }

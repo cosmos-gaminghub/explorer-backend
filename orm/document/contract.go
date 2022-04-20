@@ -3,6 +3,7 @@ package document
 import (
 	"time"
 
+	"github.com/cosmos-gaminghub/explorer-backend/schema"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -10,7 +11,7 @@ import (
 const (
 	CollectionContract = "contracts"
 
-	ContractAddress = "contract_address"
+	ContractAddressField = "contract_address"
 )
 
 type Contract struct {
@@ -40,10 +41,20 @@ func (d Contract) PkKvPair() map[string]interface{} {
 func (d Contract) EnsureIndexes() []mgo.Index {
 	indexes := []mgo.Index{
 		{
-			Key:        []string{ContractAddress},
+			Key:        []string{ContractAddressField},
 			Background: true,
 		},
 	}
 
 	return indexes
+}
+
+func (_ Contract) FindByContractAddress(contractAddress string) (schema.Contract, error) {
+	var contract schema.Contract
+	condition := bson.M{
+		ContractAddressField: contractAddress,
+	}
+
+	err := queryOne(CollectionContract, nil, condition, &contract)
+	return contract, err
 }
