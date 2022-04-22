@@ -20,7 +20,7 @@ type Code struct {
 	DataHash         string    `bson:"data_hash"`
 	CreatedAt        time.Time `bson:"created_at"`
 	Creator          string    `bson:"creator"`
-	InstantiateCount int       `bson:"instantiate_count" json:"instantiate_count"`
+	InstantiateCount int       `bson:"instantiate_count"`
 	Permission       string    `bson:"permission"`
 	PermittedAddress string    `bson:"permitted_address"`
 	TxHash           string    `bson:"txhash"`
@@ -52,6 +52,6 @@ func (_ Code) FindByCodeId(codeId int) (schema.Code, error) {
 		CodeIdField: codeId,
 	}
 
-	err := queryOne(CollectionContract, nil, condition, &code)
+	err := queryOne(CollectionCode, nil, condition, &code)
 	return code, err
 }

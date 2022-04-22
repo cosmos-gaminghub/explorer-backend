@@ -30,14 +30,21 @@ func SaveCode(t *schema.Code) (interface{}, error) {
 	return orm.Upsert(document.CollectionCode, selector, t)
 }
 
-func SaveCodeInfo(codeId int, txhash string, instantiatedAt time.Time) (interface{}, error) {
+func SaveCodeInstantiateCount(codeId int) (interface{}, error) {
 	code, err := document.Code{}.FindByCodeId(codeId)
 	if err != nil {
 		logger.Error("failed to get code from db:", logger.String("err", err.Error()))
 	}
 	instantiateCount := code.InstantiateCount + 1
-	code.SetTxhash(txhash).
-		SetInstantiateCount(instantiateCount).
-		SetCreatedAt(instantiatedAt)
+	code.SetInstantiateCount(instantiateCount)
+	return SaveCode(&code)
+}
+
+func SaveCodeMigrateInfo(codeId int, txhash string, createdAt time.Time) (interface{}, error) {
+	code, err := document.Code{}.FindByCodeId(codeId)
+	if err != nil {
+		logger.Error("failed to get code from db:", logger.String("err", err.Error()))
+	}
+	code.SetCreatedAt(createdAt).SetTxhash(txhash)
 	return SaveCode(&code)
 }

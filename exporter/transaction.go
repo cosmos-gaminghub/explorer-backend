@@ -100,7 +100,21 @@ func saveWasmInfo(logs []types.Log, txhash string, time time.Time) (result inter
 								logger.Error(fmt.Sprintf("Failed to parse code id %s to int", attribute.Value))
 								continue
 							}
-							SaveCodeInfo(codeId, txhash, time)
+							SaveCodeInstantiateCount(codeId)
+						}
+					}
+					break
+				}
+			case "store_code":
+				{
+					for _, attribute := range event.Attributes {
+						if attribute.Key == "code_id" {
+							codeId, err := strconv.Atoi(attribute.Value)
+							if err != nil {
+								logger.Error(fmt.Sprintf("Failed to parse code id %s to int", attribute.Value))
+								continue
+							}
+							SaveCodeMigrateInfo(codeId, txhash, time)
 						}
 					}
 					break
