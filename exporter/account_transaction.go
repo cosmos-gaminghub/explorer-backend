@@ -28,13 +28,23 @@ func SaveAccountTransaction(validators []*schema.Validator, transactions []*sche
 func getListAccountAddress(messages string) []string {
 	var list []string
 	var addressPrefix = conf.Get().Db.AddresPrefix
-	var re = regexp.MustCompile(`(?m)\"juno.{39}(\\")`)
-
+	var re = regexp.MustCompile(`"` + addressPrefix + `.{39}"`)
 	for _, match := range re.FindAllString(messages, -1) {
-		// address have format "address\" --> correct address = address[1:len(address)-2]
-		address := utils.Convert(addressPrefix, match)
+		// address have format "address" --> correct address = address[1:len(address)-1]
+		address := utils.Convert(addressPrefix, match[1:len(match)-1])
 		if address != "" {
-			list = append(list, address[1:len(address)-2])
+			list = append(list, address)
+		}
+	}
+
+	// patterns for contract address
+	var reContract = regexp.MustCompile(`"` + addressPrefix + `.{39}[a-z0-9].{19}"`)
+
+	for _, match := range reContract.FindAllString(messages, -1) {
+		// address have format "address\" --> correct address = address[1:len(address)-2]
+		address := utils.Convert(addressPrefix, match[1:len(match)-1])
+		if address != "" {
+			list = append(list, address)
 		}
 	}
 	return list
