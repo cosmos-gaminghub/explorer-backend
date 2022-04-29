@@ -18,7 +18,8 @@ func GetContract(wc types.WasmContract) *schema.Contract {
 		SetCode(result.CodeId).
 		SetLabel(result.Label).
 		SetCreator(result.Creator).
-		SetContractAddress(result.ContractAddress)
+		SetContractAddress(result.ContractAddress).
+		SetAdmin(result.Admin)
 
 	return contract
 }
@@ -47,6 +48,7 @@ func SaveContractExecuteInfo(contractAddress string, executeAt time.Time) (inter
 	executeCount := contract.ExecutedCount + 1
 	contract.SetLastExecutedAt(executeAt).
 		SetExecutedCount(executeCount)
+
 	return SaveContract(&contract)
 }
 

@@ -869,5 +869,6 @@ type WasmContract struct {
 		ContractAddress string `json:"address"`
 		Creator         string `json:"creator"`
 		Label           string `json:"label"`
+		Admin           string `json:"admin"`
 	}
 }

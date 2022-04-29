@@ -125,7 +125,7 @@ func sync() error {
 // process ingests chain data, such as block, transaction, validator set information
 // and save them in database
 func process(height int64) error {
-	block, err := client.GetBlock(2746390)
+	block, err := client.GetBlock(height)
 	if err != nil {
 		logger.Error("failed to query block using rpc client:", logger.String("err", err.Error()))
 	}
