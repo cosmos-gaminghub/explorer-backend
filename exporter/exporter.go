@@ -152,7 +152,7 @@ func process(height int64) error {
 	}
 	orm.Save(document.CollectionNmBlock, resultBlock)
 
-	//SaveMissedBlock(clientHTTP, height, resultBlock)
+	SaveMissedBlock(clientHTTP, height, resultBlock)
 
 	resultTxs, err := GetTxs(txs, *resultBlock)
 	if err != nil {
