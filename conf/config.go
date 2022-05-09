@@ -24,6 +24,7 @@ const (
 
 	KeyAddrHubLcd = "ADDR_NODE_SERVER"
 	KeyHubRPC     = "RPC_ENPOINT"
+	KeyHubGRPC    = "GRPC_ENPOINT"
 	KeyCoin       = "DEFAULT_COIN"
 
 	KeyCoingeckoEndPoint  = "COINGECKO_API_ENDPOINT"
@@ -61,9 +62,10 @@ func init() {
 	config.Coingecko = coingecko
 
 	hubcf := hubConf{
-		LcdUrl: getEnv(KeyAddrHubLcd, DefaultEnvironment),
-		RpcUrl: getEnv(KeyHubRPC, DefaultEnvironment),
-		Coin:   getEnv(KeyCoin, DefaultEnvironment),
+		LcdUrl:  getEnv(KeyAddrHubLcd, DefaultEnvironment),
+		RpcUrl:  getEnv(KeyHubRPC, DefaultEnvironment),
+		GrpcUrl: getEnv(KeyHubGRPC, DefaultEnvironment),
+		Coin:    getEnv(KeyCoin, DefaultEnvironment),
 	}
 	config.Hub = hubcf
 	logger.Info("==================================load config end==================================")
@@ -80,9 +82,10 @@ type Config struct {
 }
 
 type hubConf struct {
-	LcdUrl string
-	RpcUrl string
-	Coin   string
+	LcdUrl  string
+	RpcUrl  string
+	Coin    string
+	GrpcUrl string
 }
 
 type Coingecko struct {

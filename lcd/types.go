@@ -872,3 +872,8 @@ type WasmContract struct {
 		Admin           string `json:"admin"`
 	}
 }
+
+type WasmRawContractState struct {
+	Contract string `json:"contract"`
+	Version  string `json:"version"`
+}
