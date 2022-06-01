@@ -44,6 +44,8 @@ func Start() error {
 		fmt.Println(err.Error())
 	}
 
+	c := make(chan int)
+
 	go func() {
 		for {
 			fmt.Println("start - sync codes")
@@ -51,6 +53,7 @@ func Start() error {
 			if err != nil {
 				fmt.Printf("error - sync code blockchain: %v\n", err)
 			}
+			c <- 1
 			fmt.Println("finish - sync code blockchain")
 			time.Sleep(3600 * 24 * time.Second)
 		}
@@ -58,6 +61,8 @@ func Start() error {
 
 	go func() {
 		for {
+			//wait to code sync success
+			_ = <-c
 			fmt.Println("start - sync blockchain")
 			err := sync()
 			if err != nil {
@@ -282,7 +287,11 @@ func processCode(code *schema.Code) error {
 			return err
 		}
 
-		contractResult := GetContract(contract)
+		contractState, err := GetRawContractState(contractAddress)
+		if err != nil {
+			logger.Error("failed to query contract using rpc client:", logger.String("err", err.Error()))
+		}
+		contractResult := GetContract(contract, contractState)
 		SaveContract(contractResult)
 	}
 	fmt.Printf("synced all contract for code %d \n", code.CodeId)

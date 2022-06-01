@@ -336,6 +336,7 @@ func GetContract(contractAddress string) (types.WasmContract, error) {
 	resBytes, err := utils.Get(url)
 	if err != nil {
 		logger.Error(fmt.Sprintf("Get wasm contract error %s", contractAddress), logger.String("err", err.Error()))
+		return types.WasmContract{}, err
 	}
 
 	var result types.WasmContract

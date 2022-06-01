@@ -33,9 +33,10 @@ func GetContract(wc types.WasmContract, contractState types.WasmRawContractState
 		SetLabel(result.Label).
 		SetCreator(result.Creator).
 		SetContractAddress(result.ContractAddress).
-		SetAdmin(result.Admin).
-		SetVersion(contractState.Version).
-		SetContract(contractState.Contract)
+		SetAdmin(result.Admin)
+	if contractState != (types.WasmRawContractState{}) {
+		contract = contract.SetContract(contractState.Contract).SetVersion(contractState.Version)
+	}
 
 	return contract
 }
@@ -48,18 +49,36 @@ func SaveContract(t *schema.Contract) (interface{}, error) {
 func SaveContractInstantiateInfo(contractAddress string, txhash string, instantiatedAt time.Time) (interface{}, error) {
 	contract, err := document.Contract{}.FindByContractAddress(contractAddress)
 	if err != nil {
-		logger.Error("failed to get contract from db:", logger.String("err", err.Error()))
+		logger.Error(fmt.Sprintf("failed to get contract %s from db:", contractAddress), logger.String("err", err.Error()))
+		return nil, err
 	}
 	contract.SetTxhash(txhash).
 		SetInstantiatedAt(instantiatedAt).
 		SetLastExecutedAt(instantiatedAt)
+
+	code, err := document.Code{}.FindByCodeId(contract.CodeId)
+	if err == nil {
+		if instantiatedAt.After(code.FirstContractTime) {
+			code.SetFirstContractTime(instantiatedAt).
+				SetContract(contract.Contract).
+				SetVersion(contract.Version)
+		}
+		_, err = SaveCode(&code)
+		if err != nil {
+			logger.Error(fmt.Sprintf("failed to save code %d verson and contract:", contract.CodeId), logger.String("err", err.Error()))
+		}
+	} else {
+		logger.Error(fmt.Sprintf("failed to get code %d from db: ", contract.CodeId), logger.String("err", err.Error()))
+	}
+
 	return SaveContract(&contract)
 }
 
 func SaveContractExecuteInfo(contractAddress string, executeAt time.Time) (interface{}, error) {
 	contract, err := document.Contract{}.FindByContractAddress(contractAddress)
 	if err != nil {
-		logger.Error("failed to get contract from db:", logger.String("err", err.Error()))
+		logger.Error(fmt.Sprintf("failed to get contract %s from db:", contractAddress), logger.String("err", err.Error()))
+		return nil, err
 	}
 	executeCount := contract.ExecutedCount + 1
 	contract.SetLastExecutedAt(executeAt).
@@ -71,7 +90,8 @@ func SaveContractExecuteInfo(contractAddress string, executeAt time.Time) (inter
 func SaveContractAdminInfo(contractAddress string, admin string) (interface{}, error) {
 	contract, err := document.Contract{}.FindByContractAddress(contractAddress)
 	if err != nil {
-		logger.Error("failed to get contract from db:", logger.String("err", err.Error()))
+		logger.Error(fmt.Sprintf("failed to get contract %s from db:", contractAddress), logger.String("err", err.Error()))
+		return nil, err
 	}
 	contract.SetAdmin(admin)
 	return SaveContract(&contract)
@@ -155,6 +175,7 @@ func GetRawContractState(contractAddress string) (types.WasmRawContractState, er
 	var result types.WasmRawContractState
 	if err := json.Unmarshal(res.Data, &result); err != nil {
 		logger.Error(fmt.Sprintf("[Get Raw Contract State] Unmarshal wasm contract state %s", contractAddress), logger.String("err", err.Error()))
+		return types.WasmRawContractState{}, err
 	}
 	return result, nil
 }

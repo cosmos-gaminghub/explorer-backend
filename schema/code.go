@@ -6,16 +6,17 @@ import (
 
 // Code defines the structure for code information.
 type Code struct {
-	CodeId           int       `bson:"code_id"`
-	Contract         string    `bson:"contract"`
-	DataHash         string    `bson:"data_hash"`
-	CreatedAt        time.Time `bson:"created_at"`
-	Creator          string    `bson:"creator"`
-	InstantiateCount int       `bson:"instantiate_count" json:"instantiate_count"`
-	Permission       string    `bson:"permission"`
-	PermittedAddress string    `bson:"permitted_address"`
-	TxHash           string    `bson:"txhash"`
-	Version          string    `bson:"version"`
+	CodeId            int       `bson:"code_id"`
+	Contract          string    `bson:"contract"`
+	DataHash          string    `bson:"data_hash"`
+	CreatedAt         time.Time `bson:"created_at"`
+	Creator           string    `bson:"creator"`
+	InstantiateCount  int       `bson:"instantiate_count"`
+	Permission        string    `bson:"permission"`
+	PermittedAddress  string    `bson:"permitted_address"`
+	TxHash            string    `bson:"txhash"`
+	Version           string    `bson:"version"`
+	FirstContractTime time.Time `bson:"first_contract_time"`
 }
 
 // NewCode returns a new Code.
@@ -70,5 +71,10 @@ func (code *Code) SetVersion(version string) *Code {
 
 func (code *Code) SetTxhash(txHash string) *Code {
 	code.TxHash = txHash
+	return code
+}
+
+func (code *Code) SetFirstContractTime(time time.Time) *Code {
+	code.FirstContractTime = time
 	return code
 }
