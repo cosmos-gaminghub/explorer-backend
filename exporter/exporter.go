@@ -44,8 +44,25 @@ func Start() error {
 		fmt.Println(err.Error())
 	}
 
+	c := make(chan int)
+
 	go func() {
 		for {
+			fmt.Println("start - sync codes")
+			err := syncCode()
+			if err != nil {
+				fmt.Printf("error - sync code blockchain: %v\n", err)
+			}
+			c <- 1
+			fmt.Println("finish - sync code blockchain")
+			time.Sleep(3600 * 24 * time.Second)
+		}
+	}()
+
+	go func() {
+		for {
+			//wait to code sync success
+			_ = <-c
 			fmt.Println("start - sync blockchain")
 			err := sync()
 			if err != nil {
@@ -84,7 +101,6 @@ func sync() error {
 	}
 
 	dbHeight := block.Height
-	fmt.Println(dbHeight)
 	if dbHeight == -1 {
 		log.Fatal(errors.Wrap(err, "failed to query the latest block height saved in database"))
 	}
@@ -232,5 +248,52 @@ func processProposal(proposal schema.Proposal) error {
 	proposal.Proposer = proposer.Result.Proposer
 	SaveProposal(proposal)
 
+	return nil
+}
+
+func syncCode() error {
+	codes, err := client.GetListWasmCode()
+	if err != nil {
+		return nil
+	}
+
+	resultCode := GetCodes(codes)
+	if err != nil {
+		return fmt.Errorf("failed to get codes: %s", err)
+	}
+	for _, code := range resultCode {
+		err = processCode(code)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("synced code %d \n", code.CodeId)
+	}
+
+	return nil
+}
+
+func processCode(code *schema.Code) error {
+	contractResult, _ := client.GetListWasmCodeContracts(code.CodeId)
+	_, err := SaveCode(code)
+	if err != nil {
+		logger.Error(fmt.Sprintf("failed to save code %d:", code.CodeId))
+		return err
+	}
+
+	for _, contractAddress := range contractResult.ContractAddress {
+		contract, err := client.GetContract(contractAddress)
+		if err != nil {
+			logger.Error("failed to query contract using rpc client:", logger.String("err", err.Error()))
+			return err
+		}
+
+		contractState, err := GetRawContractState(contractAddress)
+		if err != nil {
+			logger.Error("failed to query contract using rpc client:", logger.String("err", err.Error()))
+		}
+		contractResult := GetContract(contract, contractState)
+		SaveContract(contractResult)
+	}
+	fmt.Printf("synced all contract for code %d \n", code.CodeId)
 	return nil
 }

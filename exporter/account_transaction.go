@@ -1,7 +1,7 @@
 package exporter
 
 import (
-	"strings"
+	"regexp"
 
 	"github.com/cosmos-gaminghub/explorer-backend/conf"
 	"github.com/cosmos-gaminghub/explorer-backend/orm"
@@ -28,29 +28,23 @@ func SaveAccountTransaction(validators []*schema.Validator, transactions []*sche
 func getListAccountAddress(messages string) []string {
 	var list []string
 	var addressPrefix = conf.Get().Db.AddresPrefix
-	var length = len(addressPrefix) + 39 // length off account address
-	for {
-		if strings.Contains(messages, addressPrefix) {
-			index := strings.Index(messages, addressPrefix)
-			var nextIndex = index + length
-			if nextIndex > len(messages)-1 {
-				break
-			}
+	var re = regexp.MustCompile(`"` + addressPrefix + `.{39}"`)
+	for _, match := range re.FindAllString(messages, -1) {
+		// address have format "address" --> correct address = address[1:len(address)-1]
+		address := utils.Convert(addressPrefix, match[1:len(match)-1])
+		if address != "" {
+			list = append(list, address)
+		}
+	}
 
-			if string(messages[index+length]) != "\"" { //skip string if got string like ugame,...
-				messages = messages[index+1 : len(messages)-1]
-				continue
-			}
-			var messageAddress = messages[index : index+length]
-			if !(strings.Contains(messageAddress, addressPrefix+"valoper")) { // check if string is gamevaloper
-				address := utils.Convert(addressPrefix, messageAddress)
-				if address != "" {
-					list = append(list, address)
-				}
-			}
-			messages = messages[index+length : len(messages)-1]
-		} else {
-			break
+	// patterns for contract address
+	var reContract = regexp.MustCompile(`"` + addressPrefix + `.{39}[a-z0-9].{19}"`)
+
+	for _, match := range reContract.FindAllString(messages, -1) {
+		// address have format "address\" --> correct address = address[1:len(address)-2]
+		address := utils.Convert(addressPrefix, match[1:len(match)-1])
+		if address != "" {
+			list = append(list, address)
 		}
 	}
 	return list

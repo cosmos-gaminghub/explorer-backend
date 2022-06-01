@@ -2,9 +2,12 @@ package exporter
 
 import (
 	"encoding/json"
+	"fmt"
 	"strconv"
+	"time"
 
 	types "github.com/cosmos-gaminghub/explorer-backend/lcd"
+	"github.com/cosmos-gaminghub/explorer-backend/logger"
 	"github.com/cosmos-gaminghub/explorer-backend/schema"
 )
 
@@ -36,7 +39,93 @@ func GetTxs(txs types.TxResult, block schema.Block) (transactions []*schema.Tran
 			RawLog:     tx.RawLog,
 		})
 		transactions = append(transactions, t)
+
+		saveWasmInfo(tx.Logs, tx.TxHash, block.Timestamp)
 	}
 
 	return transactions, nil
+}
+
+func saveWasmInfo(logs []types.Log, txhash string, time time.Time) (result interface{}, err error) {
+	for _, log := range logs {
+		for _, event := range log.Events {
+			switch event.Type {
+			case "execute":
+				{
+					for _, attribute := range event.Attributes {
+						if attribute.Key == "_contract_address" {
+							SaveContractExecuteInfo(attribute.Value, time)
+							break
+						}
+					}
+					break
+				}
+			case "update_admin":
+				{
+					for _, attribute := range event.Attributes {
+						var contractAddress string
+						var admin string
+						if attribute.Key == "_contract_address" {
+							contractAddress = attribute.Value
+						}
+
+						if attribute.Key == "admin" {
+							admin = attribute.Value
+						}
+						SaveContractAdminInfo(contractAddress, admin)
+					}
+					break
+				}
+			case "clear_admin":
+				{
+					for _, attribute := range event.Attributes {
+						var contractAddress string
+						var admin string
+						if attribute.Key == "_contract_address" {
+							contractAddress = attribute.Value
+						}
+						SaveContractAdminInfo(contractAddress, admin)
+					}
+					break
+				}
+			case "instantiate":
+				{
+					for _, attribute := range event.Attributes {
+						if attribute.Key == "_contract_address" {
+							SaveContractInstantiateInfo(attribute.Value, txhash, time)
+						}
+						if attribute.Key == "code_id" {
+							codeId, err := strconv.Atoi(attribute.Value)
+							if err != nil {
+								logger.Error(fmt.Sprintf("Failed to parse code id %s to int", attribute.Value))
+								continue
+							}
+							SaveCodeInstantiateCount(codeId)
+						}
+					}
+					break
+				}
+			case "store_code":
+				{
+					for _, attribute := range event.Attributes {
+						if attribute.Key == "code_id" {
+							codeId, err := strconv.Atoi(attribute.Value)
+							if err != nil {
+								logger.Error(fmt.Sprintf("Failed to parse code id %s to int", attribute.Value))
+								continue
+							}
+							SaveCodeMigrateInfo(codeId, txhash, time)
+						}
+					}
+					break
+				}
+			default:
+				{
+					break
+				}
+			}
+		}
+	}
+
+	return nil, nil
 }

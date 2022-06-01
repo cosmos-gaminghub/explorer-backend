@@ -36,9 +36,6 @@ const (
 	UrlDistributionRewardsByValidatorAcc         = "%s/distribution/%s/rewards"
 	UrlValidatorsSigningInfoByConsensuPublicKey  = "%s/slashing/validators/%s/signing-info"
 	UrlDistributionWithdrawAddressByValidatorAcc = "%s/distribution/%s/withdraw-address"
-	UrlTokenStatsSupply                          = "https://rpc.irisnet.org/token-stats/supply"
-	UrlTokenStatsCirculation                     = "https://rpc.irisnet.org/token-stats/circulation"
-	UrlLookupIconsByKeySuffix                    = "https://keybase.io/_/api/1.0/user/lookup.json?fields=pictures&key_suffix=%s"
 	UrlAssetTokens                               = "%s/asset/tokens"
 	UrlAssetGateways                             = "%s/asset/gateways"
 	UrlValSigningInfo                            = "%s/cosmos/slashing/v1beta1/signing_infos/%s"
@@ -48,6 +45,11 @@ const (
 	UrlProposalProposer = "%s/gov/proposals/%d/proposer"
 	UrlProposalVoters   = "%s/cosmos/gov/v1beta1/proposals/%d/votes?pagination.offset=%d"
 	UrlProposalTally    = "%s/cosmos/gov/v1beta1/proposals/%d/tally"
+
+	UrlWasmContractState = "%s/wasm/contract/%s/state"
+	UrlWasmCode          = "%s/wasm/code"
+	UrlWasmCodeContracts = "%s/wasm/code/%d/contracts"
+	UrlWasmContract      = "%s/wasm/contract/%s"
 
 	DefaultValidatorSetLimit = 100
 	DefaultValidatorLimit    = 200
@@ -836,4 +838,42 @@ type ValSigningInfo struct {
 
 type PropsalTally struct {
 	Tally ProposalFinalTallyResult `json:"tally"`
+}
+
+type ContractState struct {
+	Height int `json:"height"`
+	Result []struct {
+		Key   string `json:"key"`
+		Value string `json:"value"`
+	}
+}
+
+type WasmCode struct {
+	Height string `json:"height"`
+	Result []struct {
+		Id       int    `json:"id"`
+		Creator  string `json:"creator"`
+		DataHash string `json:"data_hash"`
+	}
+}
+
+type WasmCodeContracts struct {
+	Height          string   `json:"height"`
+	ContractAddress []string `json:"result"`
+}
+
+type WasmContract struct {
+	Height string `json:"height"`
+	Result struct {
+		CodeId          int    `json:"code_id"`
+		ContractAddress string `json:"address"`
+		Creator         string `json:"creator"`
+		Label           string `json:"label"`
+		Admin           string `json:"admin"`
+	}
+}
+
+type WasmRawContractState struct {
+	Contract string `json:"contract"`
+	Version  string `json:"version"`
 }
